@@ -63,7 +63,7 @@ export default function LandingPage() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+      await fetch("/api/auth/logout", { method: "POST" }).catch(() => { });
       await signOut();
     } catch (err) {
       console.error("Sign out error:", err);
@@ -132,157 +132,124 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28 px-4 text-center">
+      <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28 px-4">
         {/* Background ambient lighting */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/4 right-10 w-72 h-72 bg-xp/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-4xl mx-auto space-y-6 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/40 bg-gold/10 text-gold text-xs font-bold uppercase tracking-wider shadow-sm">
-            <Sparkles className="w-3.5 h-3.5" />
-            Life RPG · Gamified Habit & Task Tracker
+        <div className="max-w-7xl mx-auto relative z-10 flex flex-col lg:flex-row gap-12 items-center">
+
+          {/* Left Column (Text & CTA) */}
+          <div className="space-y-6 text-left lg:w-5/12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/40 bg-gold/10 text-gold text-xs font-bold uppercase tracking-wider shadow-sm">
+              <Sparkles className="w-3.5 h-3.5" />
+              Life RPG · Gamified Habit & Task Tracker
+            </div>
+
+            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-black text-foreground tracking-tight leading-tight">
+              Turn your real-life progress <br />
+              <span className="text-gold">into a legend.</span>
+            </h1>
+
+            <p className="text-base md:text-lg text-foreground-muted max-w-xl leading-relaxed">
+              Connect your daily studying, fitness, routines, and mindfulness to verified character growth. Gain experience, accumulate treasury gold, vanquish weekly delay, and unlock atmospheric relics.
+            </p>
+
+
           </div>
 
-          <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-black text-foreground tracking-tight leading-tight">
-            Turn your real-life progress <br />
-            <span className="text-gold">into a legend.</span>
-          </h1>
+          {/* Right Column (Video) */}
+          <div className="relative aspect-video rounded-2xl overflow-hidden border border-border shadow-2xl bg-secondary/30 lg:w-7/12">
+            <video
+              src="/final_processed.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </div>
 
-          <p className="text-base md:text-lg text-foreground-muted max-w-2xl mx-auto leading-relaxed">
-            Connect your daily studying, fitness, routines, and mindfulness to verified character growth. Gain experience, accumulate treasury gold, vanquish weekly delay, and unlock atmospheric relics.
+        </div>
+      </section>
+
+      {/* Categories / Attributes Section */}
+      <section className="max-w-4xl mx-auto px-4 pb-20 pt-10 w-full relative z-10">
+        <div className="text-center space-y-2 mb-10">
+          <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+            Master Every Aspect of Your Life
+          </h2>
+          <p className="text-sm text-foreground-muted max-w-xl mx-auto">
+            Focus on different categories to build a balanced and unstoppable character.
           </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            {isSignedIn ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  aria-label="Go to your dashboard"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gold text-page font-heading font-bold text-sm hover:bg-gold/90 transition-all transform active:scale-95 shadow-glow flex items-center justify-center gap-2"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>Go to Dashboard</span>
-                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  disabled={isLoggingOut}
-                  aria-label="Log out of your account"
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-secondary border border-border text-foreground hover:text-red-400 hover:border-red-900/50 text-xs font-semibold transition-colors flex items-center justify-center gap-2"
-                >
-                  {isLoggingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
-                  <span>Log Out</span>
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/register"
-                  aria-label="Create free account and get started"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gold text-page font-heading font-bold text-sm hover:bg-gold/90 transition-all transform active:scale-95 shadow-glow flex items-center justify-center gap-2"
-                >
-                  <span>Create Account</span>
-                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </Link>
-                <Link
-                  href="/login"
-                  aria-label="Sign in to your account"
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-secondary border border-border text-foreground hover:border-gold/50 text-xs font-semibold transition-colors"
-                >
-                  Sign In
-                </Link>
-              </>
-            )}
-          </div>
         </div>
-      </section>
 
-      {/* Interactive Simulation Sandbox */}
-      <section className="max-w-4xl mx-auto px-4 pb-20 w-full">
-        <div className="rounded-2xl border border-gold/30 bg-panel p-6 md:p-8 shadow-panel relative">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-border">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-gold/10 text-gold border border-gold/30">
-                  Interactive Simulator
-                </span>
-                <span className="text-xs text-foreground-muted">Client Sandbox Preview</span>
+        <div className="space-y-5">
+          {[
+            {
+              id: "strength",
+              name: "Strength (Fitness & Health)",
+              desc: "Break physical limits, build endurance, and forge an iron body.",
+              image: "/assets/strength.jpg",
+              color: "border-red-900/50 bg-red-950/20",
+              textColor: "text-red-400"
+            },
+            {
+              id: "intellect",
+              name: "Intellect (Learning & Work)",
+              desc: "Expand your mind, conquer complex subjects, and achieve career excellence.",
+              image: "/assets/intellect.jpg",
+              color: "border-blue-900/50 bg-blue-950/20",
+              textColor: "text-blue-400"
+            },
+            {
+              id: "discipline",
+              name: "Discipline (Routine & Focus)",
+              desc: "Build unshakable habits, eliminate procrastination, and stay consistent.",
+              image: "/assets/discipline.jpg",
+              color: "border-purple-900/50 bg-purple-950/20",
+              textColor: "text-purple-400"
+            },
+            {
+              id: "vitality",
+              name: "Vitality (Rest & Recovery)",
+              desc: "Prioritize sleep, mindfulness, and active recovery to sustain your energy.",
+              image: "/assets/vitality.jpg",
+              color: "border-emerald-900/50 bg-emerald-950/20",
+              textColor: "text-emerald-400"
+            },
+            {
+              id: "charisma",
+              name: "Charisma (Social & Kindness)",
+              desc: "Nurture relationships, communicate effectively, and build a strong community.",
+              image: "/assets/charisma.jpg",
+              color: "border-amber-900/50 bg-amber-950/20",
+              textColor: "text-amber-400"
+            },
+          ].map((attr) => (
+            <div key={attr.id} className={`p-5 rounded-2xl border ${attr.color} flex flex-col sm:flex-row items-center gap-6 hover:scale-[1.02] transition-transform duration-300 cursor-default shadow-lg backdrop-blur-md`}>
+              <div className="shrink-0 relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                <img 
+                  src={attr.image} 
+                  alt={attr.name} 
+                  className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-xl object-cover border border-border/50 shadow-inner"
+                />
               </div>
-              <h2 className="font-heading text-xl font-bold text-foreground mt-1">
-                Experience the Reward Loop
-              </h2>
+              <div className="text-center sm:text-left space-y-2">
+                <h3 className={`font-heading text-lg sm:text-xl font-bold tracking-wide ${attr.textColor}`}>
+                  {attr.name}
+                </h3>
+                <p className="text-sm md:text-base text-foreground-muted leading-relaxed">
+                  {attr.desc}
+                </p>
+              </div>
             </div>
-
-            {/* Sandbox HUD preview */}
-            <div className="flex items-center gap-3 text-xs bg-secondary/80 px-3.5 py-2 rounded-xl border border-border">
-              <span className="font-bold text-xp">LVL {simLevel}</span>
-              <span className="text-foreground-muted">·</span>
-              <span className="font-bold text-xp tabular-nums">{simXp} XP</span>
-              <span className="text-foreground-muted">·</span>
-              <span className="font-bold text-gold tabular-nums">{simGold} Gold</span>
-              <span className="text-foreground-muted">·</span>
-              <span className="font-bold text-orange-400 flex items-center gap-0.5">
-                <Flame className="w-3.5 h-3.5 fill-orange-400" /> {simStreak}d
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {sampleQuests.map((q) => {
-              const isDone = completedQuests[q.id];
-              return (
-                <div
-                  key={q.id}
-                  className={cn(
-                    "p-4 rounded-xl border flex items-center justify-between gap-4 transition-all",
-                    isDone
-                      ? "bg-secondary/30 border-border/40 opacity-70"
-                      : "bg-secondary/80 border-border hover:border-gold/40"
-                  )}
-                >
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center gap-2 text-[10px] font-bold">
-                      <span className="px-1.5 py-0.5 rounded bg-panel border border-border text-foreground">
-                        {q.attr}
-                      </span>
-                      <span className="text-foreground-muted">{q.diff}</span>
-                    </div>
-                    <h3 className={cn("text-sm font-semibold text-foreground truncate", isDone && "line-through text-foreground-muted")}>
-                      {q.title}
-                    </h3>
-                  </div>
-
-                  <div className="flex items-center gap-3 shrink-0">
-                    <div className="hidden sm:flex items-center gap-2 text-xs font-semibold">
-                      <span className="text-xp">+{q.xp} XP</span>
-                      <span className="text-gold">+{q.gold} Gold</span>
-                    </div>
-
-                    {isDone ? (
-                      <span className="text-xs font-bold text-success flex items-center gap-1 px-3 py-1.5 rounded-lg bg-success/10 border border-success/30">
-                        <Check className="w-3.5 h-3.5" /> Claimed
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => handleSimComplete(q)}
-                        className="text-xs font-bold px-4 py-1.5 rounded-lg bg-gold text-page hover:bg-gold/90 transition-transform active:scale-95 shadow-sm"
-                      >
-                        Complete
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {simLevel > 1 && (
-            <div className="mt-4 p-3 rounded-xl bg-gold/10 border border-gold/30 text-center text-xs text-gold font-bold animate-pulse">
-              Ascension confirmed! In the real app, Level 2 unlocks the Crimson Covenant and Emerald Grove themes.
-            </div>
-          )}
+          ))}
         </div>
       </section>
+
+
 
       {/* Pillars of the Arcane Codex */}
       <section className="max-w-7xl mx-auto px-4 py-16 border-t border-border/60">

@@ -134,7 +134,7 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
               }`}
             >
               <BookOpen className="w-3.5 h-3.5" aria-hidden="true" />
-              Pre-Built Templates (52 Habits)
+              Popular Task
             </button>
           </div>
         )}
@@ -314,11 +314,11 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
                   </div>
                   <button
                     onClick={() => handleAdoptTemplate(tmpl)}
-                    aria-label={`Use template: ${tmpl.title}`}
+                    aria-label={`Start: ${tmpl.title}`}
                     className="flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded bg-gold/10 text-gold border border-gold/30 hover:bg-gold hover:text-page transition-colors shrink-0"
                   >
                     <PlusCircle className="w-3.5 h-3.5" aria-hidden="true" />
-                    Use Template
+                    Start
                   </button>
                 </div>
               ))}
