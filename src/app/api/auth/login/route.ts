@@ -47,6 +47,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!user.passwordHash) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: {
+            code: "INVALID_CREDENTIALS",
+            message: "Invalid email or password.",
+          },
+        },
+        { status: 401 }
+      );
+    }
+
     const passwordValid = await verifyPassword(password, user.passwordHash);
     if (!passwordValid) {
       return NextResponse.json(

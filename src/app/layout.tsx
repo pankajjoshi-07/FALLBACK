@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
 import { ClientProviders } from "@/components/providers/ClientProviders";
 
 export const metadata: Metadata = {
@@ -26,32 +27,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                if ('scrollRestoration' in history) {
-                  history.scrollRestoration = 'manual';
-                }
-                window.scrollTo(0, 0);
-              } catch (e) {}
-            `,
-          }}
-        />
-      </head>
-      <body className="antialiased min-h-screen bg-page text-foreground selection:bg-gold/30 selection:text-gold">
-        {/* Skip to Content for Keyboard Accessibility */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-gold focus:text-page focus:font-bold focus:rounded-md shadow-lg"
-        >
-          Skip to Main Content
-        </a>
+    <ClerkProvider
+      appearance={{
+        variables: {
+          colorPrimary: "#f59e0b",
+          colorBackground: "#0b0f19",
+          // colorText: "#f1f5f9",
+          // colorInputBackground: "#131b2e",
+          // colorInputText: "#f1f5f9",
+        },
+      }}
+    >
+      <html lang="en" className="dark">
+        <body className="antialiased min-h-screen bg-page text-foreground selection:bg-gold/30 selection:text-gold">
+          {/* Skip to Content for Keyboard Accessibility */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-gold focus:text-page focus:font-bold focus:rounded-md shadow-lg"
+          >
+            Skip to Main Content
+          </a>
 
-        <ClientProviders>{children}</ClientProviders>
-      </body>
-    </html>
+          <ClientProviders>{children}</ClientProviders>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
