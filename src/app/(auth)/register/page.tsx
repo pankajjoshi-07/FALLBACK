@@ -13,7 +13,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedClass, setSelectedClass] = useState<"Warrior" | "Scholar" | "Monk" | "Bard" | "Artisan">("Warrior");
+  const [selectedClasses, setSelectedClasses] = useState<string[]>(["Warrior"]);
   const [activityTimezone, setActivityTimezone] = useState("UTC");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -29,35 +29,35 @@ export default function RegisterPage() {
 
   const classes = [
     {
-      id: "Warrior" as const,
+      id: "Warrior",
       name: "Fitness & Health",
       archetype: "Warrior",
       icon: <Shield className="w-4 h-4 text-red-400" aria-hidden="true" />,
       desc: "Physical workouts, stamina, strength training, and nutrition.",
     },
     {
-      id: "Scholar" as const,
+      id: "Scholar",
       name: "Learning & Career",
       archetype: "Scholar",
       icon: <BookOpen className="w-4 h-4 text-blue-400" aria-hidden="true" />,
       desc: "Studying, reading, programming, and intellectual growth.",
     },
     {
-      id: "Monk" as const,
+      id: "Monk",
       name: "Mindfulness & Wellness",
       archetype: "Monk",
       icon: <Heart className="w-4 h-4 text-emerald-400" aria-hidden="true" />,
       desc: "Meditation, sleep schedule, stress management, and daily routines.",
     },
     {
-      id: "Bard" as const,
+      id: "Bard",
       name: "Social & Communication",
       archetype: "Bard",
       icon: <MessageSquare className="w-4 h-4 text-purple-400" aria-hidden="true" />,
       desc: "Public speaking, networking, relationships, and collaboration.",
     },
     {
-      id: "Artisan" as const,
+      id: "Artisan",
       name: "Creative & Projects",
       archetype: "Artisan",
       icon: <Wrench className="w-4 h-4 text-gold" aria-hidden="true" />,
@@ -74,6 +74,11 @@ export default function RegisterPage() {
       return;
     }
 
+    if (selectedClasses.length === 0) {
+      setError("Please select at least one primary focus area.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -85,7 +90,7 @@ export default function RegisterPage() {
           password,
           displayName: displayName.trim(),
           heroName: (heroName.trim() || displayName.trim()),
-          className: selectedClass,
+          className: selectedClasses.join(", "),
           activityTimezone,
         }),
       });
@@ -197,27 +202,35 @@ export default function RegisterPage() {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label id="focus-area-label" className="block text-xs font-semibold text-foreground">
-                Primary Focus Area <span className="text-foreground-muted font-normal">(Starting Archetype)</span>
+                Primary Focus Area(s) <span className="text-foreground-muted font-normal">(Starting Archetype)</span>
               </label>
               <span className="text-[10px] text-foreground-muted">
-                You can still track all habit categories
+                You can select multiple options
               </span>
             </div>
 
             <div
-              role="radiogroup"
+              role="group"
               aria-labelledby="focus-area-label"
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"
             >
               {classes.map((c) => {
-                const isSelected = selectedClass === c.id;
+                const isSelected = selectedClasses.includes(c.id);
                 return (
                   <button
                     type="button"
                     key={c.id}
-                    role="radio"
+                    role="checkbox"
                     aria-checked={isSelected}
-                    onClick={() => setSelectedClass(c.id)}
+                    onClick={() => {
+                      if (isSelected) {
+                        if (selectedClasses.length > 1) {
+                          setSelectedClasses(selectedClasses.filter(id => id !== c.id));
+                        }
+                      } else {
+                        setSelectedClasses([...selectedClasses, c.id]);
+                      }
+                    }}
                     aria-label={`Select ${c.name} focus with ${c.archetype} archetype`}
                     className={cn(
                       "p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between gap-1.5",

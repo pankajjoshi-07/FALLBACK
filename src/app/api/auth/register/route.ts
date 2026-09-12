@@ -8,7 +8,7 @@ const registerSchema = z.object({
   password: z.string(),
   displayName: z.string().trim().min(2, "Display name must be at least 2 characters.").max(40),
   heroName: z.string().trim().min(2).max(40).optional(),
-  className: z.enum(["Warrior", "Scholar", "Monk", "Bard", "Artisan"]).default("Warrior"),
+  className: z.string().default("Warrior"),
   activityTimezone: z.string().default("UTC"),
 });
 
@@ -75,6 +75,10 @@ export async function POST(req: NextRequest) {
       Artisan: "avatar-artisan",
     };
 
+    // If multiple classes are selected, pick the avatar of the first one
+    const primaryClass = className.split(", ")[0];
+    const startingAvatar = avatarMap[primaryClass] || "avatar-warrior";
+
     const user = await prisma.$transaction(async (tx) => {
       const newUser = await tx.user.create({
         data: {
@@ -102,7 +106,7 @@ export async function POST(req: NextRequest) {
           currentStreak: 0,
           longestStreak: 0,
           equippedTheme: "theme-midnight",
-          equippedAvatar: avatarMap[className] || "avatar-warrior",
+          equippedAvatar: startingAvatar,
           equippedTitle: "Novice Adventurer",
           equippedFrame: "frame-apprentice",
           stateVersion: 1,
