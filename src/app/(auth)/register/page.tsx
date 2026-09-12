@@ -110,15 +110,15 @@ export default function RegisterPage() {
             Arcane Codex
           </Link>
           <h1 className="font-heading text-2xl font-bold text-foreground">
-            Forge Your Hero
+            Create Account
           </h1>
           <p className="text-xs text-foreground-muted">
-            Create your adventurer account and connect real effort to heroic growth.
+            Create your Life RPG account and turn real-life habits into leveling progress.
           </p>
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-red-950/50 border border-red-800/60 text-xs text-red-300 font-medium">
+          <div className="p-3 rounded-xl bg-red-950/50 border border-red-800/60 text-xs text-red-300 font-medium" role="alert">
             {error}
           </div>
         )}
@@ -127,7 +127,7 @@ export default function RegisterPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="reg-display-name" className="block text-xs font-semibold text-foreground mb-1">
-                Adventurer Name *
+                Display Name *
               </label>
               <input
                 id="reg-display-name"
@@ -135,7 +135,8 @@ export default function RegisterPage() {
                 required
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="e.g. Aethelgard"
+                placeholder="e.g. Alex"
+                aria-label="Display name"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-secondary border border-border text-foreground text-sm focus:border-gold outline-none transition-colors"
               />
             </div>
@@ -150,7 +151,8 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="hero@realm.org"
+                placeholder="alex@example.com"
+                aria-label="Email address"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-secondary border border-border text-foreground text-sm focus:border-gold outline-none transition-colors"
               />
             </div>
@@ -158,7 +160,7 @@ export default function RegisterPage() {
 
           <div>
             <label htmlFor="reg-password" className="block text-xs font-semibold text-foreground mb-1">
-              Secret Cipher (Password) *
+              Password *
             </label>
             <div className="relative">
               <input
@@ -169,6 +171,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 12 characters"
+                aria-label="Password"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-secondary border border-border text-foreground text-sm focus:border-gold outline-none transition-colors pr-10"
               />
               <button
@@ -188,7 +191,7 @@ export default function RegisterPage() {
           {/* Starter Class Selection */}
           <div>
             <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Choose Your Starting Archetype
+              Choose Your Starting Archetype (Class)
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {classes.map((c) => (
@@ -196,6 +199,7 @@ export default function RegisterPage() {
                   type="button"
                   key={c.id}
                   onClick={() => setSelectedClass(c.id)}
+                  aria-label={`Select class ${c.label}`}
                   className={cn(
                     "p-2.5 rounded-xl border text-left transition-all",
                     selectedClass === c.id
@@ -221,17 +225,18 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={isLoading}
+            aria-label="Create account and get started"
             className="w-full py-3 px-4 rounded-xl bg-gold text-page font-heading font-bold text-sm hover:bg-gold/90 transition-transform active:scale-95 shadow-glow disabled:opacity-50"
           >
-            {isLoading ? "Inscribing Hero..." : "Inscribe Hero & Begin Journey"}
+            {isLoading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
         <div className="text-center pt-2 border-t border-border/60">
           <p className="text-xs text-foreground-muted">
-            Already registered?{" "}
+            Already have an account?{" "}
             <Link href="/login" className="text-gold font-semibold hover:underline">
-              Enter Sanctuary
+              Sign In
             </Link>
           </p>
         </div>

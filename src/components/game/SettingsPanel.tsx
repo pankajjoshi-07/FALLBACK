@@ -45,11 +45,11 @@ export function SettingsPanel({ user, onUpdateProfile, onLogout }: SettingsPanel
     <div className="space-y-6 animate-fade-in max-w-3xl mx-auto">
       <div className="rounded-2xl border border-border bg-panel p-6 shadow-panel">
         <h2 className="font-heading text-2xl font-bold text-foreground flex items-center gap-2 mb-1">
-          <Settings className="w-6 h-6 text-gold" />
-          Sanctuary Settings
+          <Settings className="w-6 h-6 text-gold" aria-hidden="true" />
+          Account Settings
         </h2>
         <p className="text-xs text-foreground-muted">
-          Manage your personal identity, audio feedback, and system preferences.
+          Manage your personal profile, audio feedback, and system preferences.
         </p>
 
         {/* Profile Form */}
@@ -57,7 +57,7 @@ export function SettingsPanel({ user, onUpdateProfile, onLogout }: SettingsPanel
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="settings-display-name" className="block text-xs font-semibold text-foreground mb-1">
-                Adventurer Display Name
+                Display Name
               </label>
               <input
                 id="settings-display-name"
@@ -71,7 +71,7 @@ export function SettingsPanel({ user, onUpdateProfile, onLogout }: SettingsPanel
 
             <div>
               <label htmlFor="settings-hero-name" className="block text-xs font-semibold text-foreground mb-1">
-                Hero Codex Moniker
+                Character Name <span className="text-foreground-muted font-normal">(Hero Moniker)</span>
               </label>
               <input
                 id="settings-hero-name"
@@ -87,7 +87,7 @@ export function SettingsPanel({ user, onUpdateProfile, onLogout }: SettingsPanel
           <div className="flex items-center justify-between pt-2">
             {savedSuccess ? (
               <span className="text-xs text-success flex items-center gap-1 font-semibold">
-                <CheckCircle2 className="w-4 h-4" /> Identity updated successfully
+                <CheckCircle2 className="w-4 h-4" /> Profile updated successfully
               </span>
             ) : (
               <span />
@@ -96,28 +96,29 @@ export function SettingsPanel({ user, onUpdateProfile, onLogout }: SettingsPanel
             <button
               type="submit"
               disabled={isSaving}
+              aria-label="Save profile changes"
               className="px-5 py-2 rounded-lg bg-gold text-page font-bold text-xs hover:bg-gold/90 transition-transform active:scale-95 shadow-glow"
             >
-              {isSaving ? "Saving..." : "Save Identity"}
+              {isSaving ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>
 
         {/* Audio & Motion Preferences */}
         <div className="mt-8 pt-6 border-t border-border space-y-4">
-          <h3 className="font-heading text-base font-bold text-foreground">Sensory Preferences</h3>
+          <h3 className="font-heading text-base font-bold text-foreground">Sound & Audio Preferences</h3>
 
           <div className="flex items-center justify-between p-3.5 rounded-xl bg-secondary/50 border border-border">
             <div className="flex items-center gap-3">
               {soundEnabled ? (
-                <Volume2 className="w-5 h-5 text-gold" />
+                <Volume2 className="w-5 h-5 text-gold" aria-hidden="true" />
               ) : (
-                <VolumeX className="w-5 h-5 text-foreground-muted" />
+                <VolumeX className="w-5 h-5 text-foreground-muted" aria-hidden="true" />
               )}
               <div>
-                <h4 className="text-xs font-bold text-foreground">Procedural Audio Synthesizer</h4>
+                <h4 className="text-xs font-bold text-foreground">Sound Effects (Web Audio)</h4>
                 <p className="text-[11px] text-foreground-muted">
-                  Gentle synthesized chime upon quest completion and ascending fanfare on level up.
+                  Gentle synthesized chime upon task completion and fanfare on level up.
                 </p>
               </div>
             </div>
@@ -125,6 +126,7 @@ export function SettingsPanel({ user, onUpdateProfile, onLogout }: SettingsPanel
             <button
               type="button"
               onClick={toggleSound}
+              aria-label={soundEnabled ? "Mute sound effects" : "Enable sound effects"}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors border ${
                 soundEnabled
                   ? "bg-gold text-page border-gold shadow-glow"
@@ -138,10 +140,10 @@ export function SettingsPanel({ user, onUpdateProfile, onLogout }: SettingsPanel
 
         {/* Timezone Security Information */}
         <div className="mt-8 pt-6 border-t border-border space-y-2">
-          <h3 className="font-heading text-base font-bold text-foreground">Timezone & Anti-Cheat Boundary</h3>
+          <h3 className="font-heading text-base font-bold text-foreground">Timezone & Streak Protection</h3>
           <div className="p-4 rounded-xl bg-secondary/40 border border-border text-xs text-foreground-muted space-y-2">
             <div className="flex items-center gap-2 text-foreground font-semibold">
-              <ShieldAlert className="w-4 h-4 text-gold" />
+              <ShieldAlert className="w-4 h-4 text-gold" aria-hidden="true" />
               <span>Current Activity Timezone: {user.activityTimezone}</span>
             </div>
             <p className="leading-relaxed">
@@ -156,17 +158,18 @@ export function SettingsPanel({ user, onUpdateProfile, onLogout }: SettingsPanel
         {/* Logout Section */}
         <div className="mt-8 pt-6 border-t border-border flex justify-between items-center">
           <div>
-            <h4 className="text-xs font-bold text-foreground">End Adventurer Session</h4>
-            <p className="text-[11px] text-foreground-muted">Securely clear your cryptographic session token.</p>
+            <h4 className="text-xs font-bold text-foreground">Sign Out</h4>
+            <p className="text-[11px] text-foreground-muted">Securely end your session on this device.</p>
           </div>
 
           <button
             type="button"
             onClick={onLogout}
+            aria-label="Log out of your account"
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-950/40 text-red-400 border border-red-800/50 hover:bg-red-900/60 hover:text-red-200 transition-colors text-xs font-bold"
           >
-            <LogOut className="w-4 h-4" />
-            Logout of Codex
+            <LogOut className="w-4 h-4" aria-hidden="true" />
+            Log Out
           </button>
         </div>
       </div>

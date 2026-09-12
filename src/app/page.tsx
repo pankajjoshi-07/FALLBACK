@@ -65,15 +65,17 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
+              aria-label="Sign in to your account"
               className="text-xs font-semibold px-4 py-2 rounded-xl text-foreground-muted hover:text-foreground hover:bg-secondary transition-colors"
             >
-              Enter Sanctuary
+              Sign In
             </Link>
             <Link
               href="/register"
+              aria-label="Create account"
               className="text-xs font-bold px-4 py-2 rounded-xl bg-gold text-page hover:bg-gold/90 transition-transform active:scale-95 shadow-glow"
             >
-              Forge Your Hero
+              Create Account
             </Link>
           </div>
         </div>
@@ -88,7 +90,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto space-y-6 relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/40 bg-gold/10 text-gold text-xs font-bold uppercase tracking-wider shadow-sm">
             <Sparkles className="w-3.5 h-3.5" />
-            Life RPG · Dark Fantasy Adventure Journal
+            Life RPG · Gamified Habit & Task Tracker
           </div>
 
           <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-black text-foreground tracking-tight leading-tight">
@@ -103,16 +105,18 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
               href="/register"
+              aria-label="Create free account and get started"
               className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gold text-page font-heading font-bold text-sm hover:bg-gold/90 transition-all transform active:scale-95 shadow-glow flex items-center justify-center gap-2"
             >
-              <span>Begin Your Odyssey</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Create Account</span>
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </Link>
             <Link
               href="/login"
+              aria-label="Sign in to your account"
               className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-secondary border border-border text-foreground hover:border-gold/50 text-xs font-semibold transition-colors"
             >
-              Sign In to Existing Hero
+              Sign In
             </Link>
           </div>
         </div>

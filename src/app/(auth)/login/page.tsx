@@ -51,15 +51,15 @@ export default function LoginPage() {
             Arcane Codex
           </Link>
           <h1 className="font-heading text-2xl font-bold text-foreground">
-            Enter the Sanctuary
+            Sign In to Your Account
           </h1>
           <p className="text-xs text-foreground-muted">
-            Provide your adventurer credentials to reclaim your progress.
+            Enter your email address and password to access your Life RPG dashboard.
           </p>
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-red-950/50 border border-red-800/60 text-xs text-red-300 font-medium">
+          <div className="p-3 rounded-xl bg-red-950/50 border border-red-800/60 text-xs text-red-300 font-medium" role="alert">
             {error}
           </div>
         )}
@@ -67,7 +67,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="login-email" className="block text-xs font-semibold text-foreground mb-1">
-              Adventurer Email
+              Email Address
             </label>
             <input
               id="login-email"
@@ -75,14 +75,15 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="hero@arcanecodex.realm"
+              placeholder="hero@example.com"
+              aria-label="Email address"
               className="w-full px-3.5 py-2.5 rounded-xl bg-secondary border border-border text-foreground text-sm focus:border-gold outline-none transition-colors"
             />
           </div>
 
           <div>
             <label htmlFor="login-password" className="block text-xs font-semibold text-foreground mb-1">
-              Secret Cipher
+              Password
             </label>
             <div className="relative">
               <input
@@ -92,6 +93,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
+                aria-label="Password"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-secondary border border-border text-foreground text-sm focus:border-gold outline-none transition-colors pr-10"
               />
               <button
@@ -108,17 +110,18 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
+            aria-label="Sign in to your account"
             className="w-full py-3 px-4 rounded-xl bg-gold text-page font-heading font-bold text-sm hover:bg-gold/90 transition-transform active:scale-95 shadow-glow disabled:opacity-50"
           >
-            {isLoading ? "Consulting Codex..." : "Open Codex"}
+            {isLoading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
         <div className="text-center pt-2 border-t border-border/60">
           <p className="text-xs text-foreground-muted">
-            New to the order?{" "}
+            Don&apos;t have an account yet?{" "}
             <Link href="/register" className="text-gold font-semibold hover:underline">
-              Forge your hero account
+              Create Account
             </Link>
           </p>
         </div>

@@ -91,18 +91,26 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
       aria-labelledby="modal-title"
     >
       <div className="bg-panel border border-border shadow-2xl max-w-2xl w-full rounded-2xl p-6 relative max-h-[90vh] flex flex-col overflow-hidden">
-        {/* Header */}
+        {/* Header with Hybrid Subtitle */}
         <div className="flex items-center justify-between pb-3 border-b border-border">
-          <h2 id="modal-title" className="font-heading text-xl font-bold text-foreground flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-gold" />
-            {editingQuest ? "Edit Quest Inscription" : "Forge a Quest"}
-          </h2>
+          <div>
+            <h2 id="modal-title" className="font-heading text-xl font-bold text-foreground flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-gold" aria-hidden="true" />
+              {editingQuest ? "Edit Quest Details" : "Create Quest (New Task)"}
+            </h2>
+            <p className="text-xs text-foreground-muted mt-0.5">
+              {editingQuest
+                ? "Update your task description or deadline."
+                : "Add a new real-world activity to your quest board to earn XP and Gold."}
+            </p>
+          </div>
+
           <button
             onClick={onClose}
-            aria-label="Close modal"
+            aria-label="Close dialog"
             className="p-1 rounded-md text-foreground-muted hover:text-foreground hover:bg-secondary transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -111,20 +119,22 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
           <div className="flex border-b border-border mb-4 pt-2">
             <button
               onClick={() => setTab("custom")}
+              aria-selected={tab === "custom"}
               className={`pb-2 px-4 text-xs font-semibold transition-colors border-b-2 ${
                 tab === "custom" ? "border-gold text-gold" : "border-transparent text-foreground-muted hover:text-foreground"
               }`}
             >
-              Custom Quest
+              Custom Task
             </button>
             <button
               onClick={() => setTab("templates")}
+              aria-selected={tab === "templates"}
               className={`pb-2 px-4 text-xs font-semibold transition-colors border-b-2 flex items-center gap-1.5 ${
                 tab === "templates" ? "border-gold text-gold" : "border-transparent text-foreground-muted hover:text-foreground"
               }`}
             >
-              <BookOpen className="w-3.5 h-3.5" />
-              Template Codex (52)
+              <BookOpen className="w-3.5 h-3.5" aria-hidden="true" />
+              Pre-Built Templates (52 Habits)
             </button>
           </div>
         )}
@@ -134,7 +144,7 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
           <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1 flex-1">
             <div>
               <label htmlFor="quest-title" className="block text-xs font-semibold text-foreground mb-1">
-                Quest Title *
+                Task Title *
               </label>
               <input
                 id="quest-title"
@@ -150,7 +160,7 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
 
             <div>
               <label htmlFor="quest-desc" className="block text-xs font-semibold text-foreground mb-1">
-                Description & Guidance (Optional)
+                Notes & Description (Optional)
               </label>
               <textarea
                 id="quest-desc"
@@ -158,7 +168,7 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
                 maxLength={2000}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Details, focus notes, or personal criteria for completion..."
+                placeholder="Details, focus criteria, or helpful reminder notes..."
                 className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-foreground text-sm focus:border-gold outline-none resize-none"
               />
             </div>
@@ -166,7 +176,7 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="quest-attribute" className="block text-xs font-semibold text-foreground mb-1">
-                  Attribute Focus
+                  Attribute Category
                 </label>
                 <select
                   id="quest-attribute"
@@ -174,17 +184,17 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
                   onChange={(e) => setAttribute(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-foreground text-sm focus:border-gold outline-none"
                 >
-                  <option value="STRENGTH">STRENGTH (Body & Movement)</option>
-                  <option value="INTELLECT">INTELLECT (Learning & Coding)</option>
-                  <option value="DISCIPLINE">DISCIPLINE (Routine & Focus)</option>
-                  <option value="VITALITY">VITALITY (Recovery & Mindfulness)</option>
-                  <option value="CHARISMA">CHARISMA (Connection & Courage)</option>
+                  <option value="STRENGTH">Strength (Physical Fitness & Body)</option>
+                  <option value="INTELLECT">Intellect (Learning & Code)</option>
+                  <option value="DISCIPLINE">Discipline (Routine & Focus)</option>
+                  <option value="VITALITY">Vitality (Recovery & Mindfulness)</option>
+                  <option value="CHARISMA">Charisma (Social & Kindness)</option>
                 </select>
               </div>
 
               <div>
                 <label htmlFor="quest-difficulty" className="block text-xs font-semibold text-foreground mb-1">
-                  Difficulty (Reward: {DIFFICULTY_XP[difficulty]} base XP)
+                  Difficulty Level ({DIFFICULTY_XP[difficulty]} Base XP)
                 </label>
                 <select
                   id="quest-difficulty"
@@ -204,7 +214,7 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="quest-cadence" className="block text-xs font-semibold text-foreground mb-1">
-                  Cadence
+                  Repetition Cadence
                 </label>
                 <select
                   id="quest-cadence"
@@ -212,16 +222,16 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
                   onChange={(e) => setCadence(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-foreground text-sm focus:border-gold outline-none"
                 >
-                  <option value="DAILY">DAILY (One reward per calendar day)</option>
-                  <option value="WEEKLY">WEEKLY (Target completions per week)</option>
-                  <option value="ONCE">ONCE (One-time milestone)</option>
+                  <option value="DAILY">Daily Habit (Resets each calendar day)</option>
+                  <option value="WEEKLY">Weekly Goal (Configurable target per week)</option>
+                  <option value="ONCE">One-Time Task (Single completion)</option>
                 </select>
               </div>
 
               {cadence === "WEEKLY" && (
                 <div>
                   <label htmlFor="quest-weekly-target" className="block text-xs font-semibold text-foreground mb-1">
-                    Weekly Target (1 to 7 times)
+                    Weekly Target (Completions per week)
                   </label>
                   <input
                     id="quest-weekly-target"
@@ -249,7 +259,7 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
                 disabled={isSubmitting}
                 className="px-6 py-2 rounded-lg bg-gold text-page font-bold text-xs hover:bg-gold/90 transition-transform active:scale-95 shadow-glow"
               >
-                {isSubmitting ? "Inscribing..." : editingQuest ? "Update Quest" : "Inscribe Quest"}
+                {isSubmitting ? "Saving..." : editingQuest ? "Update Quest" : "Save Quest"}
               </button>
             </div>
           </form>
@@ -258,12 +268,13 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
           <div className="flex flex-col flex-1 overflow-hidden space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative flex-1 min-w-[180px]">
-                <Search className="w-4 h-4 text-foreground-muted absolute left-3 top-2.5" />
+                <Search className="w-4 h-4 text-foreground-muted absolute left-3 top-2.5" aria-hidden="true" />
                 <input
                   type="text"
                   value={templateSearch}
                   onChange={(e) => setTemplateSearch(e.target.value)}
-                  placeholder="Search 52 templates..."
+                  placeholder="Search 52 habit templates..."
+                  aria-label="Search habit templates"
                   className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-secondary border border-border text-foreground outline-none focus:border-gold"
                 />
               </div>
@@ -271,9 +282,10 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
               <select
                 value={templateAttrFilter}
                 onChange={(e) => setTemplateAttrFilter(e.target.value)}
+                aria-label="Filter templates by category"
                 className="text-xs px-2.5 py-1.5 rounded-lg bg-secondary border border-border text-foreground outline-none"
               >
-                <option value="ALL">All Attributes</option>
+                <option value="ALL">All Categories</option>
                 <option value="STRENGTH">Strength</option>
                 <option value="INTELLECT">Intellect</option>
                 <option value="DISCIPLINE">Discipline</option>
@@ -297,15 +309,16 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
                         {tmpl.difficulty} · {tmpl.cadence}
                       </span>
                     </div>
-                    <h4 className="text-xs font-semibold text-foreground truncate">{tmpl.title}</h4>
+                    <h3 className="text-xs font-semibold text-foreground truncate">{tmpl.title}</h3>
                     <p className="text-[11px] text-foreground-muted line-clamp-1">{tmpl.description}</p>
                   </div>
                   <button
                     onClick={() => handleAdoptTemplate(tmpl)}
+                    aria-label={`Use template: ${tmpl.title}`}
                     className="flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded bg-gold/10 text-gold border border-gold/30 hover:bg-gold hover:text-page transition-colors shrink-0"
                   >
-                    <PlusCircle className="w-3.5 h-3.5" />
-                    Adopt
+                    <PlusCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                    Use Template
                   </button>
                 </div>
               ))}

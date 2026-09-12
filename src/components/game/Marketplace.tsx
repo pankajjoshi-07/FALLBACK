@@ -34,11 +34,20 @@ export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }:
   const { setTheme } = useTheme();
 
   const categoryIcons: Record<string, React.ReactNode> = {
-    THEME: <Palette className="w-3.5 h-3.5" />,
-    AVATAR: <User className="w-3.5 h-3.5" />,
-    TITLE: <Sparkles className="w-3.5 h-3.5" />,
-    FRAME: <Shield className="w-3.5 h-3.5" />,
-    BADGE: <Award className="w-3.5 h-3.5" />,
+    THEME: <Palette className="w-3.5 h-3.5" aria-hidden="true" />,
+    AVATAR: <User className="w-3.5 h-3.5" aria-hidden="true" />,
+    TITLE: <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />,
+    FRAME: <Shield className="w-3.5 h-3.5" aria-hidden="true" />,
+    BADGE: <Award className="w-3.5 h-3.5" aria-hidden="true" />,
+  };
+
+  const categoryLabels: Record<string, string> = {
+    ALL: "All Items",
+    THEME: "Themes",
+    AVATAR: "Avatars",
+    TITLE: "Titles",
+    FRAME: "Frames",
+    BADGE: "Badges",
   };
 
   const filteredItems = items.filter(
@@ -79,20 +88,20 @@ export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }:
 
   return (
     <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
-      {/* Merchant Bazaar Header */}
+      {/* Shop Header with Hybrid Subtitle */}
       <div className="rounded-2xl border border-border bg-panel p-6 shadow-panel flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-          <h2 className="font-heading text-2xl font-bold text-foreground flex items-center gap-2">
-            <Coins className="w-6 h-6 text-gold" />
-            Merchant Bazaar
-          </h2>
+          <h1 className="font-heading text-2xl font-bold text-foreground flex items-center gap-2">
+            <Coins className="w-6 h-6 text-gold" aria-hidden="true" />
+            Shop & Customization
+          </h1>
           <p className="text-xs text-foreground-muted mt-1">
-            Exchange your earned gold for permanent visual relics, atmospheric themes, and heroic titles.
+            Merchant Bazaar — Use your earned Gold to unlock UI themes, avatar emblems, and profile titles.
           </p>
         </div>
 
         <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary border border-gold/30 shadow-glow">
-          <Coins className="w-5 h-5 text-gold" />
+          <Coins className="w-5 h-5 text-gold" aria-hidden="true" />
           <div className="text-right">
             <span className="text-[10px] text-foreground-muted uppercase font-bold block">Available Gold</span>
             <span className="text-lg font-bold text-gold tabular-nums">{userGold.toLocaleString()}</span>
@@ -101,11 +110,12 @@ export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }:
       </div>
 
       {/* Category Filter Pills */}
-      <div className="flex flex-wrap items-center gap-2">
+      <nav aria-label="Shop categories" className="flex flex-wrap items-center gap-2">
         {["ALL", "THEME", "AVATAR", "TITLE", "FRAME", "BADGE"].map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
+            aria-label={`Filter by ${categoryLabels[cat] || cat}`}
             className={cn(
               "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 border",
               selectedCategory === cat
@@ -114,10 +124,10 @@ export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }:
             )}
           >
             {categoryIcons[cat]}
-            <span>{cat === "ALL" ? "All Relics" : `${cat.charAt(0) + cat.slice(1).toLowerCase()}s`}</span>
+            <span>{categoryLabels[cat] || cat}</span>
           </button>
         ))}
-      </div>
+      </nav>
 
       {/* Item Catalog Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -141,7 +151,7 @@ export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }:
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-secondary border border-border text-foreground-muted flex items-center gap-1">
                     {categoryIcons[item.category]}
-                    {item.category}
+                    {categoryLabels[item.category] || item.category}
                   </span>
 
                   {item.levelRequirement > 1 && (
@@ -153,42 +163,44 @@ export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }:
                           : "bg-secondary text-foreground-muted border-border"
                       )}
                     >
-                      Req. LVL {item.levelRequirement}
+                      Requires Level {item.levelRequirement}
                     </span>
                   )}
                 </div>
 
-                <h3 className="font-heading font-bold text-base text-foreground mb-1">{item.name}</h3>
+                <h2 className="font-heading font-bold text-base text-foreground mb-1">{item.name}</h2>
                 <p className="text-xs text-foreground-muted leading-relaxed">{item.description}</p>
               </div>
 
               {/* Card Footer Actions */}
               <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1 font-bold text-sm text-gold">
-                  <Coins className="w-4 h-4" />
-                  <span className="tabular-nums">{item.price}</span>
+                  <Coins className="w-4 h-4" aria-hidden="true" />
+                  <span className="tabular-nums">{item.price} Gold</span>
                 </div>
 
                 {item.isEquipped ? (
                   <span className="text-xs font-bold text-gold px-3 py-1.5 rounded-lg bg-gold/10 border border-gold/40 flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> Equipped
+                    <Check className="w-3.5 h-3.5" aria-hidden="true" /> Equipped
                   </span>
                 ) : item.isOwned ? (
                   <button
                     onClick={() => handleEquip(item)}
                     disabled={Boolean(processingId)}
+                    aria-label={`Equip ${item.name}`}
                     className="text-xs font-bold px-3.5 py-1.5 rounded-lg bg-secondary border border-border hover:border-gold text-foreground transition-all"
                   >
-                    Equip Relic
+                    Equip Item
                   </button>
                 ) : isLockedByLevel ? (
                   <span className="text-xs font-medium text-foreground-muted px-3 py-1.5 rounded-lg bg-secondary/50 border border-border flex items-center gap-1">
-                    <Lock className="w-3.5 h-3.5" /> Locked (LVL {item.levelRequirement})
+                    <Lock className="w-3.5 h-3.5" aria-hidden="true" /> Locked (Level {item.levelRequirement})
                   </span>
                 ) : (
                   <button
                     onClick={() => handleBuy(item)}
                     disabled={!isAffordable || Boolean(processingId)}
+                    aria-label={`Buy ${item.name} for ${item.price} Gold`}
                     className={cn(
                       "text-xs font-bold px-4 py-1.5 rounded-lg transition-all transform active:scale-95 shadow-sm",
                       isAffordable
@@ -196,7 +208,7 @@ export function Marketplace({ items, userGold, userLevel, onPurchase, onEquip }:
                         : "bg-secondary text-foreground-muted border border-border cursor-not-allowed opacity-60"
                     )}
                   >
-                    {processingId === item.id ? "Purchasing..." : isAffordable ? "Purchase" : "Need Gold"}
+                    {processingId === item.id ? "Processing..." : isAffordable ? "Buy Item" : "Insufficient Gold"}
                   </button>
                 )}
               </div>

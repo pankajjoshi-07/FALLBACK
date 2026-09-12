@@ -10,11 +10,10 @@ import {
   Scroll,
   Settings,
   PlusCircle,
-  Filter,
   Sparkles,
   Loader2,
-  RefreshCw,
   Search,
+  CheckCircle2,
 } from "lucide-react";
 import { CharacterHUD } from "@/components/game/CharacterHUD";
 import { QuestCard } from "@/components/game/QuestCard";
@@ -75,7 +74,7 @@ export default function DashboardPage() {
   });
 
   // 3. Fetch shop items
-  const { data: shopItems, isLoading: shopLoading } = useQuery({
+  const { data: shopItems } = useQuery({
     queryKey: ["shop"],
     queryFn: async () => {
       const res = await fetch("/api/shop");
@@ -133,14 +132,12 @@ export default function DashboardPage() {
       return json;
     },
     onSuccess: (result) => {
-      // Invalidate caches
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.invalidateQueries({ queryKey: ["quests"] });
       queryClient.invalidateQueries({ queryKey: ["history"] });
       queryClient.invalidateQueries({ queryKey: ["activity"] });
       queryClient.invalidateQueries({ queryKey: ["boss"] });
 
-      // Check for level up event
       const levelUpEvent = result.events?.find((e: any) => e.type === "LEVEL_UP");
       if (levelUpEvent) {
         setLevelUpData({
@@ -175,7 +172,7 @@ export default function DashboardPage() {
       setEditingQuest(null);
     },
     onError: (err: any) => {
-      alert(err.message || "Failed to forge quest.");
+      alert(err.message || "Failed to save quest.");
     },
   });
 
@@ -259,9 +256,9 @@ export default function DashboardPage() {
 
   if (userLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-page text-gold gap-3">
-        <Loader2 className="w-8 h-8 animate-spin" />
-        <p className="font-heading text-sm tracking-wide">Inscribing Codex Chamber...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-page text-gold gap-3" role="status">
+        <Loader2 className="w-8 h-8 animate-spin" aria-hidden="true" />
+        <p className="font-heading text-sm tracking-wide">Loading your adventurer dashboard...</p>
       </div>
     );
   }
@@ -269,23 +266,60 @@ export default function DashboardPage() {
   if (userError || !userData) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-page text-center space-y-4">
-        <p className="text-sm text-red-400">Failed to load adventurer session.</p>
+        <p className="text-sm text-red-400">Failed to load user session.</p>
         <button
           onClick={() => router.push("/login")}
           className="px-4 py-2 rounded-lg bg-gold text-page font-bold text-xs shadow-glow"
         >
-          Return to Login
+          Return to Sign In
         </button>
       </div>
     );
   }
 
-  const tabs: Array<{ id: ActiveTab; label: string; icon: React.ReactNode }> = [
-    { id: "quests", label: "Quest Board", icon: <Swords className="w-4 h-4" /> },
-    { id: "character", label: "Character Sheet", icon: <User className="w-4 h-4" /> },
-    { id: "market", label: "Merchant Bazaar", icon: <Coins className="w-4 h-4" /> },
-    { id: "chronicle", label: "Chronicle", icon: <Scroll className="w-4 h-4" /> },
-    { id: "settings", label: "Sanctuary", icon: <Settings className="w-4 h-4" /> },
+  // Hybrid navigation tabs: clear standard primary terms with thematic hints
+  const tabs: Array<{
+    id: ActiveTab;
+    label: string;
+    sublabel: string;
+    ariaLabel: string;
+    icon: React.ReactNode;
+  }> = [
+    {
+      id: "quests",
+      label: "Dashboard",
+      sublabel: "Quests",
+      ariaLabel: "Dashboard and Active Quests",
+      icon: <Swords className="w-4 h-4" aria-hidden="true" />,
+    },
+    {
+      id: "character",
+      label: "Profile",
+      sublabel: "Character",
+      ariaLabel: "User Profile and Character Stats",
+      icon: <User className="w-4 h-4" aria-hidden="true" />,
+    },
+    {
+      id: "market",
+      label: "Shop",
+      sublabel: "Bazaar",
+      ariaLabel: "Cosmetics and Theme Shop",
+      icon: <Coins className="w-4 h-4" aria-hidden="true" />,
+    },
+    {
+      id: "chronicle",
+      label: "History",
+      sublabel: "Activity Log",
+      ariaLabel: "Task Completion History and Heatmap",
+      icon: <Scroll className="w-4 h-4" aria-hidden="true" />,
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      sublabel: "Account",
+      ariaLabel: "Account Settings and Preferences",
+      icon: <Settings className="w-4 h-4" aria-hidden="true" />,
+    },
   ];
 
   return (
@@ -293,14 +327,15 @@ export default function DashboardPage() {
       {/* Sticky Character HUD */}
       <CharacterHUD character={userData.character} />
 
-      {/* Main Content Layout */}
+      {/* Main Content Layout with Sidebar Navigation */}
       <main id="main-content" className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Desktop Tab Navigation Bar */}
-        <nav aria-label="Adventurer navigation" className="hidden md:flex items-center gap-2 border-b border-border pb-2">
+        <nav aria-label="Main Navigation" className="hidden md:flex items-center gap-2 border-b border-border pb-3">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
+              aria-label={tab.ariaLabel}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border",
                 activeTab === tab.id
@@ -310,24 +345,64 @@ export default function DashboardPage() {
             >
               {tab.icon}
               <span>{tab.label}</span>
+              <span className={cn(
+                "text-[10px] font-normal px-1.5 py-0.5 rounded",
+                activeTab === tab.id ? "bg-page/20 text-page font-semibold" : "bg-panel text-foreground-muted"
+              )}>
+                {tab.sublabel}
+              </span>
             </button>
           ))}
         </nav>
 
-        {/* Tab 1: Quest Board (Tavern) */}
+        {/* Tab 1: Dashboard & Quest Board */}
         {activeTab === "quests" && (
           <div className="space-y-6 animate-fade-in">
-            {/* Top Controls & Quest Forge CTA */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            {/* Section Header with Hybrid Subtitle */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <h1 className="font-heading text-2xl font-bold text-foreground">
+                    Active Quests
+                  </h1>
+                  <span className="text-[11px] font-semibold text-gold px-2.5 py-0.5 rounded-full bg-gold/10 border border-gold/30">
+                    Daily To-Do List
+                  </span>
+                </div>
+                <p className="text-xs text-foreground-muted mt-1">
+                  Your daily task list — Complete real-world habits and goals to earn XP and Gold.
+                </p>
+              </div>
+
+              {/* Add Quest Primary CTA */}
+              <button
+                onClick={() => {
+                  setEditingQuest(null);
+                  setQuestModalOpen(true);
+                }}
+                aria-label="Create new task or quest"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gold text-page font-heading font-bold text-xs hover:bg-gold/90 transition-transform active:scale-95 shadow-glow shrink-0"
+              >
+                <PlusCircle className="w-4 h-4" aria-hidden="true" />
+                <span>Add Task (New Quest)</span>
+              </button>
+            </div>
+
+            {/* Weekly Boss Challenge Widget */}
+            {bossData && <BossCard boss={bossData} />}
+
+            {/* Search & Filter Bar */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-panel p-3 rounded-xl border border-border">
               <div className="flex flex-wrap items-center gap-2 flex-1">
-                {/* Search Bar */}
-                <div className="relative flex-1 min-w-[200px] max-w-xs">
-                  <Search className="w-4 h-4 text-foreground-muted absolute left-3 top-2.5" />
+                {/* Search Input */}
+                <div className="relative flex-1 min-w-[200px]">
+                  <Search className="w-4 h-4 text-foreground-muted absolute left-3 top-2.5" aria-hidden="true" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search active quests..."
+                    placeholder="Search tasks by name..."
+                    aria-label="Search tasks by name"
                     className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-secondary border border-border text-foreground outline-none focus:border-gold"
                   />
                 </div>
@@ -336,68 +411,56 @@ export default function DashboardPage() {
                 <select
                   value={cadenceFilter}
                   onChange={(e) => setCadenceFilter(e.target.value)}
+                  aria-label="Filter tasks by frequency"
                   className="text-xs px-3 py-1.5 rounded-lg bg-secondary border border-border text-foreground outline-none"
                 >
-                  <option value="ALL">All Cadences</option>
-                  <option value="DAILY">Daily Rituals</option>
-                  <option value="WEEKLY">Weekly Contracts</option>
-                  <option value="ONCE">One-Time Quests</option>
+                  <option value="ALL">All Frequencies</option>
+                  <option value="DAILY">Daily Habits</option>
+                  <option value="WEEKLY">Weekly Goals</option>
+                  <option value="ONCE">One-Time Tasks</option>
                 </select>
 
-                {/* Attribute Filter */}
+                {/* Attribute Category Filter */}
                 <select
                   value={attributeFilter}
                   onChange={(e) => setAttributeFilter(e.target.value)}
+                  aria-label="Filter tasks by life attribute category"
                   className="text-xs px-3 py-1.5 rounded-lg bg-secondary border border-border text-foreground outline-none"
                 >
-                  <option value="ALL">All Attributes</option>
-                  <option value="STRENGTH">Strength</option>
-                  <option value="INTELLECT">Intellect</option>
-                  <option value="DISCIPLINE">Discipline</option>
-                  <option value="VITALITY">Vitality</option>
-                  <option value="CHARISMA">Charisma</option>
+                  <option value="ALL">All Categories</option>
+                  <option value="STRENGTH">Strength (Fitness & Health)</option>
+                  <option value="INTELLECT">Intellect (Learning & Work)</option>
+                  <option value="DISCIPLINE">Discipline (Routine & Focus)</option>
+                  <option value="VITALITY">Vitality (Rest & Recovery)</option>
+                  <option value="CHARISMA">Charisma (Social & Kindness)</option>
                 </select>
               </div>
-
-              {/* Forge Quest Action */}
-              <button
-                onClick={() => {
-                  setEditingQuest(null);
-                  setQuestModalOpen(true);
-                }}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gold text-page font-heading font-bold text-xs hover:bg-gold/90 transition-transform active:scale-95 shadow-glow"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Forge Quest</span>
-              </button>
             </div>
-
-            {/* Boss Widget */}
-            {bossData && <BossCard boss={bossData} />}
 
             {/* Quest Grid */}
             {questsLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-busy="true">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="h-44 rounded-xl bg-secondary/40 border border-border animate-pulse" />
                 ))}
               </div>
             ) : questsData?.length === 0 ? (
               <div className="py-16 text-center rounded-2xl border border-dashed border-border bg-panel p-6 space-y-3">
-                <Swords className="w-10 h-10 text-gold/60 mx-auto" />
-                <h3 className="font-heading font-bold text-lg text-foreground">No Quests Inscribed Yet</h3>
+                <Swords className="w-10 h-10 text-gold/60 mx-auto" aria-hidden="true" />
+                <h2 className="font-heading font-bold text-lg text-foreground">No Active Quests</h2>
                 <p className="text-xs text-foreground-muted max-w-sm mx-auto">
-                  Your quest board is waiting for deeds. Create your first custom quest or choose from over 50 pre-written templates!
+                  Your to-do list is currently empty. Inscribe a new custom task or choose from 52 pre-written habit templates.
                 </p>
                 <button
                   onClick={() => {
                     setEditingQuest(null);
                     setQuestModalOpen(true);
                   }}
+                  aria-label="Open task templates"
                   className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gold text-page font-bold text-xs hover:bg-gold/90 transition-all shadow-glow"
                 >
-                  <PlusCircle className="w-4 h-4" />
-                  Explore Template Codex
+                  <PlusCircle className="w-4 h-4" aria-hidden="true" />
+                  Explore Habit Templates
                 </button>
               </div>
             ) : (
@@ -423,10 +486,10 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Tab 2: Character Sheet */}
+        {/* Tab 2: Profile & Character Sheet */}
         {activeTab === "character" && <CharacterSheet user={userData} />}
 
-        {/* Tab 3: Marketplace */}
+        {/* Tab 3: Shop & Cosmetics */}
         {activeTab === "market" && (
           <Marketplace
             items={shopItems || []}
@@ -441,7 +504,7 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* Tab 4: Chronicle (History & Heatmap) */}
+        {/* Tab 4: Activity History & Chronicle */}
         {activeTab === "chronicle" && (
           <Chronicle
             completions={historyData?.items || []}
@@ -450,7 +513,7 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* Tab 5: Settings */}
+        {/* Tab 5: Account Settings */}
         {activeTab === "settings" && (
           <SettingsPanel
             user={userData}
@@ -485,22 +548,23 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Mobile Bottom Navigation Bar */}
+      {/* Mobile Bottom Navigation Bar with Standard Labels */}
       <nav
-        aria-label="Mobile Navigation"
+        aria-label="Mobile Bottom Navigation"
         className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-panel border-t border-border shadow-2xl flex items-center justify-around py-2 px-1 backdrop-blur-md bg-opacity-95"
       >
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
+            aria-label={tab.ariaLabel}
             className={cn(
               "flex flex-col items-center gap-1 p-2 rounded-lg text-[10px] font-semibold transition-colors",
               activeTab === tab.id ? "text-gold font-bold" : "text-foreground-muted hover:text-foreground"
             )}
           >
             {tab.icon}
-            <span>{tab.label.split(" ")[0]}</span>
+            <span>{tab.label}</span>
           </button>
         ))}
       </nav>

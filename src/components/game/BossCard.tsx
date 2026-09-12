@@ -36,7 +36,7 @@ export function BossCard({ boss }: BossCardProps) {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold uppercase tracking-wider text-red-400 px-2 py-0.5 rounded bg-red-950/60 border border-red-900/50">
-                Weekly Adversary
+                Weekly Challenge
               </span>
               {boss.isDefeated && (
                 <span className="text-[10px] font-bold text-success px-2 py-0.5 rounded bg-success/10 border border-success/30 flex items-center gap-1">
@@ -47,11 +47,14 @@ export function BossCard({ boss }: BossCardProps) {
             <h3 className="font-heading font-bold text-base md:text-lg text-foreground mt-0.5">
               {boss.name}
             </h3>
+            <span className="text-[11px] text-foreground-muted block">
+              Procrastination Adversary — Overcome procrastination by completing tasks.
+            </span>
           </div>
         </div>
 
         <div className="text-right">
-          <span className="text-xs text-foreground-muted block font-medium">Weekly Bounty</span>
+          <span className="text-xs text-foreground-muted block font-medium">Completion Reward</span>
           <span className="text-xs font-bold text-gold flex items-center justify-end gap-1">
             <Sparkles className="w-3 h-3" /> +150 Gold & Glory
           </span>
@@ -59,7 +62,7 @@ export function BossCard({ boss }: BossCardProps) {
       </div>
 
       <p className="text-xs text-foreground-muted mb-4 leading-relaxed">
-        Completing your real-life quests channels damage directly into the Keeper of Delay. Defeat it before Sunday midnight!
+        Every real-world quest you complete deals damage directly to this week&apos;s procrastination boss. Defeat it before Sunday midnight to claim bonus Gold!
       </p>
 
       {/* Boss Health Bar */}
