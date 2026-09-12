@@ -21,6 +21,10 @@ export const metadata: Metadata = {
   },
 };
 
+const publishableKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  "pk_test_Y2xlcmsuZXhhbXBsZS5jb20k";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,17 +32,29 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider
+      publishableKey={publishableKey}
       appearance={{
         variables: {
           colorPrimary: "#f59e0b",
           colorBackground: "#0b0f19",
-          // colorText: "#f1f5f9",
-          // colorInputBackground: "#131b2e",
-          // colorInputText: "#f1f5f9",
         },
       }}
     >
       <html lang="en" className="dark">
+        <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                try {
+                  if ('scrollRestoration' in history) {
+                    history.scrollRestoration = 'manual';
+                  }
+                  window.scrollTo(0, 0);
+                } catch (e) {}
+              `,
+            }}
+          />
+        </head>
         <body className="antialiased min-h-screen bg-page text-foreground selection:bg-gold/30 selection:text-gold">
           {/* Skip to Content for Keyboard Accessibility */}
           <a

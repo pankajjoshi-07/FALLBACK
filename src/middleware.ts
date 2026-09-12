@@ -1,20 +1,32 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export default clerkMiddleware(async (auth, request) => {
-  const {pathname} = request.nextUrl;
+const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const secretKey = process.env.CLERK_SECRET_KEY;
+const hasValidClerkKeys = Boolean(
+  publishableKey &&
+  secretKey &&
+  !publishableKey.includes("your_clerk") &&
+  !publishableKey.includes("pk_test_your")
+);
 
-  const isPublicRoute = 
-    pathname === "/" ||
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/register") ||
-    pathname.startsWith("/sso-callback") ||
-    pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/webhooks");
+export default hasValidClerkKeys
+  ? clerkMiddleware(async (auth, request) => {
+      const { pathname } = request.nextUrl;
 
-  if (!isPublicRoute) {
-    await auth.protect();
-  }
-});
+      const isPublicRoute =
+        pathname === "/" ||
+        pathname.startsWith("/login") ||
+        pathname.startsWith("/register") ||
+        pathname.startsWith("/sso-callback") ||
+        pathname.startsWith("/api/auth") ||
+        pathname.startsWith("/api/webhooks");
+
+      if (!isPublicRoute) {
+        await auth.protect();
+      }
+    })
+  : () => NextResponse.next();
 
 export const config = {
   matcher: [
