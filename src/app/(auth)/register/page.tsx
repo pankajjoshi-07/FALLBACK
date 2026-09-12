@@ -316,14 +316,14 @@ export default function RegisterPage() {
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"
                 >
                   {classes.map((c) => {
-                    const isSelected = selectedClass === c.id;
+                    const isSelected = selectedClasses.includes(c.id);
                     return (
                       <button
                         type="button"
                         key={c.id}
                         role="radio"
                         aria-checked={isSelected}
-                        onClick={() => setSelectedClass(c.id)}
+                        onClick={() => setSelectedClasses([c.id])}
                         aria-label={`Select ${c.name} focus with ${c.archetype} archetype`}
                         className={cn(
                           "p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between gap-1.5",
