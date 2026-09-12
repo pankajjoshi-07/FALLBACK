@@ -15,6 +15,7 @@ import {
   Wrench,
   Loader2,
   MailCheck,
+  X,
 } from "lucide-react";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
 import { cn } from "@/lib/utils";
@@ -173,6 +174,15 @@ export default function RegisterPage() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gold/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-xl w-full rounded-2xl border border-border bg-panel p-8 shadow-panel relative z-10 space-y-6">
+        {/* Close Button to return to home page */}
+        <Link
+          href="/"
+          aria-label="Close and return to home page"
+          className="absolute top-4 right-4 p-2 rounded-xl text-foreground-muted hover:text-foreground hover:bg-secondary/80 border border-transparent hover:border-border transition-all duration-200 active:scale-95 group"
+        >
+          <X className="w-5 h-5 text-foreground-muted group-hover:text-gold transition-colors" />
+        </Link>
+
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex items-center gap-2 text-gold font-heading font-bold text-xl tracking-wider hover:opacity-90 transition-opacity">
             <Sparkles className="w-5 h-5" />
