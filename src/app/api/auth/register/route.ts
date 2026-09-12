@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
           ok: false,
           error: {
             code: "PASSWORD_WEAK",
-            message: pwCheck.message || "Password must be at least 12 characters and max 72 bytes.",
+            message: pwCheck.message || "Password must be at least 8 characters and max 72 bytes.",
           },
         },
         { status: 400 }
