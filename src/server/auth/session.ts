@@ -1,19 +1,18 @@
 import bcrypt from "bcryptjs";
-import { cookies } from "next/headers";
+import { currentUser as getClerkCurrentUser } from "@clerk/nextjs/server";
 import { prisma } from "../db/prisma";
-import crypto from "crypto";
 
 export const SESSION_COOKIE_NAME = "arcane_session";
 export const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 /**
  * Validates password criteria:
- * - Minimum 12 characters
+ * - Minimum 8 characters
  * - Explicitly rejects passwords exceeding bcrypt's 72 UTF-8 byte limit rather than silently truncating.
  */
 export function validatePasswordStrength(password: string): { valid: boolean; message?: string } {
-  if (!password || password.length < 12) {
-    return { valid: false, message: "Password must be at least 12 characters long." };
+  if (!password || password.length < 8) {
+    return { valid: false, message: "Password must be at least 8 characters long." };
   }
 
   const byteLength = Buffer.byteLength(password, "utf8");
@@ -32,7 +31,6 @@ export async function hashPassword(password: string): Promise<string> {
   if (!check.valid) {
     throw new Error(check.message);
   }
-  // Cost factor 12 as required by specification
   return bcrypt.hash(password, 12);
 }
 
@@ -43,91 +41,129 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 /**
- * Generates a cryptographically secure random session token.
+ * Helper to ensure a Prisma user and character exist for the authenticated Clerk user.
  */
-export function generateSessionToken(): string {
-  return crypto.randomBytes(32).toString("hex");
-}
+async function syncClerkUser(clerkUser: NonNullable<Awaited<ReturnType<typeof getClerkCurrentUser>>>) {
+  const primaryEmail =
+    clerkUser.primaryEmailAddress?.emailAddress?.toLowerCase() ||
+    clerkUser.emailAddresses?.[0]?.emailAddress?.toLowerCase();
 
-/**
- * Creates a database session and sets the HttpOnly cookie.
- */
-export async function createSession(userId: string): Promise<string> {
-  const sessionToken = generateSessionToken();
-  const expires = new Date(Date.now() + SESSION_DURATION_MS);
+  if (!primaryEmail && !clerkUser.id) return null;
 
-  await prisma.session.create({
-    data: {
-      sessionToken,
-      userId,
-      expires,
+  // 1. Try to find user by clerkId or primary email
+  let user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { clerkId: clerkUser.id },
+        ...(primaryEmail ? [{ email: primaryEmail }] : []),
+      ],
+    },
+    include: {
+      character: true,
     },
   });
 
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE_NAME, sessionToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    expires,
-  });
+  // 2. If user exists but clerkId is missing, update it
+  if (user && (!user.clerkId || user.clerkId !== clerkUser.id)) {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { clerkId: clerkUser.id },
+      include: {
+        character: true,
+      },
+    });
+  }
 
-  return sessionToken;
+  // 3. If user doesn't exist yet, auto-provision user and starting character
+  if (!user) {
+    const rawName =
+      clerkUser.fullName ||
+      (clerkUser.firstName ? `${clerkUser.firstName} ${clerkUser.lastName || ""}`.trim() : null) ||
+      clerkUser.username ||
+      primaryEmail?.split("@")[0] ||
+      "Adventurer";
+
+    const displayName = rawName.slice(0, 40);
+    const emailToUse = primaryEmail || `${clerkUser.id}@arcane-codex.internal`;
+
+    user = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          clerkId: clerkUser.id,
+          email: emailToUse,
+          displayName,
+          activityTimezone: "UTC",
+          displayTimezone: "UTC",
+          timezoneLocked: false,
+        },
+      });
+
+      const newCharacter = await tx.character.create({
+        data: {
+          userId: newUser.id,
+          heroName: displayName,
+          className: "Warrior",
+          lifetimeXp: 0,
+          gold: 0,
+          strengthXp: 0,
+          intellectXp: 0,
+          disciplineXp: 0,
+          vitalityXp: 0,
+          charismaXp: 0,
+          currentStreak: 0,
+          longestStreak: 0,
+          equippedTheme: "theme-midnight",
+          equippedAvatar: "avatar-warrior",
+          equippedTitle: "Novice Adventurer",
+          equippedFrame: "frame-apprentice",
+          stateVersion: 1,
+        },
+      });
+
+      await tx.goldLedger.create({
+        data: {
+          userId: newUser.id,
+          amount: 0,
+          balanceAfter: 0,
+          sourceType: "INITIAL_BALANCE",
+          sourceId: newCharacter.id,
+          description: "Hero forged into Arcane Codex via Clerk SSO",
+        },
+      });
+
+      return {
+        ...newUser,
+        character: newCharacter,
+      };
+    });
+  }
+
+  return user;
 }
 
 /**
- * Retrieves the currently authenticated user and character from the session cookie.
+ * Retrieves the currently authenticated user and character from Clerk.
  */
 export async function getCurrentUser() {
   try {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const clerkUser = await getClerkCurrentUser();
+    if (!clerkUser) return null;
 
-    if (!sessionToken) return null;
-
-    const session = await prisma.session.findUnique({
-      where: { sessionToken },
-      include: {
-        user: {
-          include: {
-            character: true,
-          },
-        },
-      },
-    });
-
-    if (!session) return null;
-
-    // Check expiration
-    if (session.expires < new Date()) {
-      await prisma.session.delete({ where: { id: session.id } }).catch(() => {});
-      return null;
-    }
-
-    return session.user;
+    return await syncClerkUser(clerkUser);
   } catch (error) {
-    console.error("Session lookup error:", error);
+    console.error("Clerk session lookup error:", error);
     return null;
   }
 }
 
 /**
- * Deletes the session from the database and removes the cookie.
+ * Legacy compatibility stub
  */
 export async function destroySession(): Promise<void> {
-  try {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-
-    if (sessionToken) {
-      await prisma.session.deleteMany({
-        where: { sessionToken },
-      }).catch(() => {});
-    }
-
-    cookieStore.delete(SESSION_COOKIE_NAME);
-  } catch (error) {
-    console.error("Destroy session error:", error);
-  }
+  // Clerk handles sessions via client signOut and server auth token expiration
 }
+
+export async function createSession(userId: string): Promise<string> {
+  return userId;
+}
+

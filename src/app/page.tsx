@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useAuth, useClerk } from "@clerk/nextjs";
 import {
   Sparkles,
   Swords,
@@ -17,11 +18,18 @@ import {
   Compass,
   Check,
   Zap,
+  LayoutDashboard,
+  LogOut,
+  Loader2,
 } from "lucide-react";
 import { sound } from "@/lib/audio";
 import { cn } from "@/lib/utils";
 
 export default function LandingPage() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const { signOut } = useClerk();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   // Interactive preview simulator state (strictly client-side preview demo)
   const [simXp, setSimXp] = useState(0);
   const [simGold, setSimGold] = useState(0);
@@ -52,6 +60,18 @@ export default function LandingPage() {
     }
   };
 
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+      await signOut();
+    } catch (err) {
+      console.error("Sign out error:", err);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-page text-foreground selection:bg-gold/30 selection:text-gold flex flex-col">
       {/* Top Navigation */}
@@ -63,20 +83,50 @@ export default function LandingPage() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              aria-label="Sign in to your account"
-              className="text-xs font-semibold px-4 py-2 rounded-xl text-foreground-muted hover:text-foreground hover:bg-secondary transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/register"
-              aria-label="Create account"
-              className="text-xs font-bold px-4 py-2 rounded-xl bg-gold text-page hover:bg-gold/90 transition-transform active:scale-95 shadow-glow"
-            >
-              Create Account
-            </Link>
+            {!isLoaded ? (
+              <div className="h-8 w-36 bg-secondary/50 rounded-xl animate-pulse" />
+            ) : isSignedIn ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  aria-label="Go to your dashboard"
+                  className="text-xs font-bold px-4 py-2 rounded-xl bg-gold text-page hover:bg-gold/90 transition-transform active:scale-95 shadow-glow flex items-center gap-1.5"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>Go to Dashboard</span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  aria-label="Log out"
+                  className="text-xs font-semibold px-3 py-2 rounded-xl text-foreground-muted hover:text-red-400 hover:bg-red-950/30 border border-transparent hover:border-red-900/50 transition-colors flex items-center gap-1.5"
+                >
+                  {isLoggingOut ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <LogOut className="w-3.5 h-3.5" />
+                  )}
+                  <span>Log Out</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  aria-label="Sign in to your account"
+                  className="text-xs font-semibold px-4 py-2 rounded-xl text-foreground-muted hover:text-foreground hover:bg-secondary transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  aria-label="Create account"
+                  className="text-xs font-bold px-4 py-2 rounded-xl bg-gold text-page hover:bg-gold/90 transition-transform active:scale-95 shadow-glow"
+                >
+                  Create Account
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -103,21 +153,46 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link
-              href="/register"
-              aria-label="Create free account and get started"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gold text-page font-heading font-bold text-sm hover:bg-gold/90 transition-all transform active:scale-95 shadow-glow flex items-center justify-center gap-2"
-            >
-              <span>Create Account</span>
-              <ArrowRight className="w-4 h-4" aria-hidden="true" />
-            </Link>
-            <Link
-              href="/login"
-              aria-label="Sign in to your account"
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-secondary border border-border text-foreground hover:border-gold/50 text-xs font-semibold transition-colors"
-            >
-              Sign In
-            </Link>
+            {isSignedIn ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  aria-label="Go to your dashboard"
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gold text-page font-heading font-bold text-sm hover:bg-gold/90 transition-all transform active:scale-95 shadow-glow flex items-center justify-center gap-2"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>Go to Dashboard</span>
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  aria-label="Log out of your account"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-secondary border border-border text-foreground hover:text-red-400 hover:border-red-900/50 text-xs font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  {isLoggingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
+                  <span>Log Out</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/register"
+                  aria-label="Create free account and get started"
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gold text-page font-heading font-bold text-sm hover:bg-gold/90 transition-all transform active:scale-95 shadow-glow flex items-center justify-center gap-2"
+                >
+                  <span>Create Account</span>
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </Link>
+                <Link
+                  href="/login"
+                  aria-label="Sign in to your account"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-secondary border border-border text-foreground hover:border-gold/50 text-xs font-semibold transition-colors"
+                >
+                  Sign In
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>

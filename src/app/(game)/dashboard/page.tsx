@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
 import {
   Swords,
   User,
@@ -249,9 +250,17 @@ export default function DashboardPage() {
     },
   });
 
+  const { signOut } = useClerk();
+
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    try {
+      await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+      await signOut();
+    } catch (err) {
+      console.error("Sign out error:", err);
+    } finally {
+      router.push("/login");
+    }
   };
 
   if (userLoading) {

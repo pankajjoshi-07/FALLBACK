@@ -3,10 +3,14 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { useSignIn } from "@clerk/nextjs/legacy";
+import { Sparkles, Eye, EyeOff, Loader2 } from "lucide-react";
+import { OAuthButtons } from "@/components/auth/OAuthButtons";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { isLoaded, signIn, setActive } = useSignIn();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -15,25 +19,31 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLoaded || !signIn) return;
+
     setError(null);
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), password }),
+      const result = await signIn.create({
+        identifier: email.trim(),
+        password,
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.ok) {
-        setError(data.error?.message || "Invalid email or password.");
-        return;
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        router.push("/dashboard");
+      } else {
+        console.warn("Clerk sign in status:", result.status);
+        setError("Further verification required. Please check your email or proceed via SSO.");
       }
-
-      router.push("/dashboard");
-    } catch {
-      setError("Unable to communicate with the authentication sanctuary.");
+    } catch (err: any) {
+      console.error("Sign-in error:", err);
+      setError(
+        err?.errors?.[0]?.longMessage ||
+          err?.errors?.[0]?.message ||
+          "Invalid email or password."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +64,7 @@ export default function LoginPage() {
             Sign In to Your Account
           </h1>
           <p className="text-xs text-foreground-muted">
-            Enter your email address and password to access your Life RPG dashboard.
+            Enter your credentials or choose an OAuth provider to access your Life RPG sanctuary.
           </p>
         </div>
 
@@ -63,6 +73,9 @@ export default function LoginPage() {
             {error}
           </div>
         )}
+
+        {/* OAuth Social Buttons (Google, Meta, Apple, LinkedIn) */}
+        <OAuthButtons mode="signIn" onError={(msg) => setError(msg || null)} />
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -109,11 +122,12 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || !isLoaded}
             aria-label="Sign in to your account"
-            className="w-full py-3 px-4 rounded-xl bg-gold text-page font-heading font-bold text-sm hover:bg-gold/90 transition-transform active:scale-95 shadow-glow disabled:opacity-50"
+            className="w-full py-3 px-4 rounded-xl bg-gold text-page font-heading font-bold text-sm hover:bg-gold/90 transition-transform active:scale-95 shadow-glow disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+            <span>{isLoading ? "Entering sanctuary..." : "Sign In"}</span>
           </button>
         </form>
 
