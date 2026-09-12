@@ -38,6 +38,17 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(false);
 
   useEffect(() => {
+    // Force manual scroll restoration so browser reloads reset to the top of the page
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+
+    const handleBeforeUnload = () => {
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     // Initial sound preference check
     setSoundEnabled(sound.isEnabled());
 
@@ -47,6 +58,10 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
       setThemeState(savedTheme);
       document.documentElement.setAttribute("data-theme", savedTheme);
     }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, []);
 
   const setTheme = (newTheme: string) => {

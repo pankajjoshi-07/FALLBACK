@@ -28,7 +28,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedClass, setSelectedClass] = useState<"Warrior" | "Scholar" | "Monk" | "Bard" | "Artisan">("Warrior");
+  const [selectedClasses, setSelectedClasses] = useState<string[]>(["Warrior"]);
   const [activityTimezone, setActivityTimezone] = useState("UTC");
 
   // Verification step state
@@ -49,35 +49,35 @@ export default function RegisterPage() {
 
   const classes = [
     {
-      id: "Warrior" as const,
+      id: "Warrior",
       name: "Fitness & Health",
       archetype: "Warrior",
       icon: <Shield className="w-4 h-4 text-red-400" aria-hidden="true" />,
       desc: "Physical workouts, stamina, strength training, and nutrition.",
     },
     {
-      id: "Scholar" as const,
+      id: "Scholar",
       name: "Learning & Career",
       archetype: "Scholar",
       icon: <BookOpen className="w-4 h-4 text-blue-400" aria-hidden="true" />,
       desc: "Studying, reading, programming, and intellectual growth.",
     },
     {
-      id: "Monk" as const,
+      id: "Monk",
       name: "Mindfulness & Wellness",
       archetype: "Monk",
       icon: <Heart className="w-4 h-4 text-emerald-400" aria-hidden="true" />,
       desc: "Meditation, sleep schedule, stress management, and daily routines.",
     },
     {
-      id: "Bard" as const,
+      id: "Bard",
       name: "Social & Communication",
       archetype: "Bard",
       icon: <MessageSquare className="w-4 h-4 text-purple-400" aria-hidden="true" />,
       desc: "Public speaking, networking, relationships, and collaboration.",
     },
     {
-      id: "Artisan" as const,
+      id: "Artisan",
       name: "Creative & Projects",
       archetype: "Artisan",
       icon: <Wrench className="w-4 h-4 text-gold" aria-hidden="true" />,
@@ -96,6 +96,11 @@ export default function RegisterPage() {
       return;
     }
 
+    if (selectedClasses.length === 0) {
+      setError("Please select at least one primary focus area.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -105,7 +110,7 @@ export default function RegisterPage() {
         firstName: displayName.trim(),
         unsafeMetadata: {
           heroName: (heroName.trim() || displayName.trim()),
-          className: selectedClass,
+          className: selectedClasses.join(", "),
           activityTimezone,
         },
       });
