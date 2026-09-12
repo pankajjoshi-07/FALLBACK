@@ -8,12 +8,12 @@ export const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 /**
  * Validates password criteria:
- * - Minimum 12 characters
+ * - Minimum 8 characters
  * - Explicitly rejects passwords exceeding bcrypt's 72 UTF-8 byte limit rather than silently truncating.
  */
 export function validatePasswordStrength(password: string): { valid: boolean; message?: string } {
-  if (!password || password.length < 12) {
-    return { valid: false, message: "Password must be at least 12 characters long." };
+  if (!password || password.length < 8) {
+    return { valid: false, message: "Password must be at least 8 characters long." };
   }
 
   const byteLength = Buffer.byteLength(password, "utf8");

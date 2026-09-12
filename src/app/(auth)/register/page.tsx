@@ -69,8 +69,8 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null);
 
-    if (password.length < 12) {
-      setError("Cipher must be at least 12 characters in length.");
+    if (password.length < 8) {
+      setError("Cipher must be at least 8 characters in length.");
       return;
     }
 
@@ -177,10 +177,10 @@ export default function RegisterPage() {
                 id="reg-password"
                 type={showPassword ? "text" : "password"}
                 required
-                minLength={12}
+                minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimum 12 characters"
+                placeholder="Minimum 8 characters"
                 aria-label="Password"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-secondary border border-border text-foreground text-sm focus:border-gold outline-none transition-colors pr-10"
               />
@@ -194,7 +194,7 @@ export default function RegisterPage() {
               </button>
             </div>
             <span className="text-[10px] text-foreground-muted block mt-1">
-              Must be at least 12 characters long and under 72 UTF-8 bytes.
+              Must be at least 8 characters long and under 72 UTF-8 bytes.
             </span>
           </div>
 

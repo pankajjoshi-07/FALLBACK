@@ -20,7 +20,7 @@ Arcane Codex connects real-world human habits with virtual game progression. The
 ## 2. Authentication & Credential Storage
 - **Algorithm**: bcrypt with cost factor 12.
 - **72-Byte Truncation Guard**: Standard bcrypt algorithms silently truncate inputs past 72 UTF-8 bytes, creating a vulnerability where long passwords with identical prefixes hash to identical values. Arcane Codex explicitly validates byte length (`Buffer.byteLength(password, 'utf8') <= 72`) and rejects oversized inputs.
-- **Minimum Length**: Strict minimum 12 characters enforced on both server and client.
+- **Minimum Length**: Strict minimum 8 characters enforced on both server and client.
 - **Generic Responses**: Login failures return a generic `"Invalid email or password"` error to prevent email enumeration.
 
 ---

@@ -22,7 +22,7 @@ All API route endpoints adhere to consistent typed JSON schemas and proper HTTP 
   ```
 - **Validation**:
   - `email`: Valid email format
-  - `password`: Length >= 12, UTF-8 byte length <= 72 (prevents bcrypt truncation)
+  - `password`: Length >= 8, UTF-8 byte length <= 72 (prevents bcrypt truncation)
   - `displayName`: 2 to 40 characters
   - `className`: One of `Warrior`, `Scholar`, `Monk`, `Bard`, `Artisan`
 - **Response**: `201 Created`
