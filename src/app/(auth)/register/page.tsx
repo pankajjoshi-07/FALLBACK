@@ -30,33 +30,38 @@ export default function RegisterPage() {
   const classes = [
     {
       id: "Warrior" as const,
-      label: "Warrior",
-      icon: <Shield className="w-4 h-4 text-red-400" />,
-      desc: "Champion of physical discipline and vitality.",
+      name: "Fitness & Health",
+      archetype: "Warrior",
+      icon: <Shield className="w-4 h-4 text-red-400" aria-hidden="true" />,
+      desc: "Physical workouts, stamina, strength training, and nutrition.",
     },
     {
       id: "Scholar" as const,
-      label: "Scholar",
-      icon: <BookOpen className="w-4 h-4 text-blue-400" />,
-      desc: "Seeker of arcane knowledge, coding, and research.",
+      name: "Learning & Career",
+      archetype: "Scholar",
+      icon: <BookOpen className="w-4 h-4 text-blue-400" aria-hidden="true" />,
+      desc: "Studying, reading, programming, and intellectual growth.",
     },
     {
       id: "Monk" as const,
-      label: "Monk",
-      icon: <Heart className="w-4 h-4 text-emerald-400" />,
-      desc: "Devotee of calm recovery, mindfulness, and habits.",
+      name: "Mindfulness & Wellness",
+      archetype: "Monk",
+      icon: <Heart className="w-4 h-4 text-emerald-400" aria-hidden="true" />,
+      desc: "Meditation, sleep schedule, stress management, and daily routines.",
     },
     {
       id: "Bard" as const,
-      label: "Bard",
-      icon: <MessageSquare className="w-4 h-4 text-purple-400" />,
-      desc: "Maestro of charisma, networking, and articulation.",
+      name: "Social & Communication",
+      archetype: "Bard",
+      icon: <MessageSquare className="w-4 h-4 text-purple-400" aria-hidden="true" />,
+      desc: "Public speaking, networking, relationships, and collaboration.",
     },
     {
       id: "Artisan" as const,
-      label: "Artisan",
-      icon: <Wrench className="w-4 h-4 text-gold" />,
-      desc: "Creator of projects, craft, and tangible work.",
+      name: "Creative & Projects",
+      archetype: "Artisan",
+      icon: <Wrench className="w-4 h-4 text-gold" aria-hidden="true" />,
+      desc: "Building side projects, creative writing, art, and craft.",
     },
   ];
 
@@ -188,32 +193,59 @@ export default function RegisterPage() {
             </span>
           </div>
 
-          {/* Starter Class Selection */}
+          {/* Primary Focus Area Selection (Hybrid Life Goal & Archetype) */}
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Choose Your Starting Archetype (Class)
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {classes.map((c) => (
-                <button
-                  type="button"
-                  key={c.id}
-                  onClick={() => setSelectedClass(c.id)}
-                  aria-label={`Select class ${c.label}`}
-                  className={cn(
-                    "p-2.5 rounded-xl border text-left transition-all",
-                    selectedClass === c.id
-                      ? "border-gold bg-secondary ring-1 ring-gold shadow-glow"
-                      : "border-border bg-secondary/50 hover:bg-secondary hover:border-border-bright"
-                  )}
-                >
-                  <div className="flex items-center gap-1.5 font-bold text-xs text-foreground mb-0.5">
-                    {c.icon}
-                    <span>{c.label}</span>
-                  </div>
-                  <p className="text-[10px] text-foreground-muted line-clamp-1">{c.desc}</p>
-                </button>
-              ))}
+            <div className="flex items-center justify-between mb-1.5">
+              <label id="focus-area-label" className="block text-xs font-semibold text-foreground">
+                Primary Focus Area <span className="text-foreground-muted font-normal">(Starting Archetype)</span>
+              </label>
+              <span className="text-[10px] text-foreground-muted">
+                You can still track all habit categories
+              </span>
+            </div>
+
+            <div
+              role="radiogroup"
+              aria-labelledby="focus-area-label"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"
+            >
+              {classes.map((c) => {
+                const isSelected = selectedClass === c.id;
+                return (
+                  <button
+                    type="button"
+                    key={c.id}
+                    role="radio"
+                    aria-checked={isSelected}
+                    onClick={() => setSelectedClass(c.id)}
+                    aria-label={`Select ${c.name} focus with ${c.archetype} archetype`}
+                    className={cn(
+                      "p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between gap-1.5",
+                      isSelected
+                        ? "border-gold bg-secondary ring-1 ring-gold shadow-glow"
+                        : "border-border bg-secondary/50 hover:bg-secondary hover:border-border-bright"
+                    )}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 font-bold text-xs text-foreground">
+                        {c.icon}
+                        <span>{c.name}</span>
+                      </div>
+                      <span className={cn(
+                        "text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider",
+                        isSelected
+                          ? "bg-gold/20 text-gold border border-gold/40"
+                          : "bg-panel text-foreground-muted border border-border"
+                      )}>
+                        {c.archetype}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-foreground-muted leading-snug">
+                      {c.desc}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
