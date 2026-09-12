@@ -1,0 +1,257 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(cuid())
+  email            String            @unique
+  passwordHash     String
+  displayName      String
+  activityTimezone String            @default("UTC")
+  displayTimezone  String            @default("UTC")
+  timezoneLocked   Boolean           @default(false)
+  soundEnabled     Boolean           @default(false)
+  motionReduced    Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  character        Character?
+  quests           Quest[]
+  completions      CompletionLog[]
+  activityDays     ActivityDay[]
+  inventory        InventoryItem[]
+  goldLedger       GoldLedger[]
+  mutationReceipts MutationReceipt[]
+  achievements     UserAchievement[]
+  bossInstances    UserBossInstance[]
+  sessions         Session[]
+
+  @@index([email])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Character {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  heroName         String
+  className        String   @default("Warrior")
+  lifetimeXp       Int      @default(0)
+  gold             Int      @default(0)
+  strengthXp       Int      @default(0)
+  intellectXp      Int      @default(0)
+  disciplineXp     Int      @default(0)
+  vitalityXp       Int      @default(0)
+  charismaXp       Int      @default(0)
+  currentStreak    Int      @default(0)
+  longestStreak    Int      @default(0)
+  lastActivityDate String?  // "YYYY-MM-DD"
+  equippedTheme    String   @default("theme-midnight")
+  equippedAvatar   String   @default("avatar-warrior")
+  equippedTitle    String?  @default("Novice Adventurer")
+  equippedFrame    String?  @default("frame-apprentice")
+  stateVersion     Int      @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Quest {
+  id           String          @id @default(cuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  difficulty   String          // TRIVIAL, EASY, MEDIUM, HARD, EPIC
+  attribute    String          // STRENGTH, INTELLECT, DISCIPLINE, VITALITY, CHARISMA
+  cadence      String          // ONCE, DAILY, WEEKLY
+  weeklyTarget Int             @default(1)
+  dueDate      DateTime?
+  archivedAt   DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  completions  CompletionLog[]
+
+  @@index([userId, archivedAt])
+}
+
+model CompletionLog {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questId           String
+  quest             Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  questTitle        String   // Snapshot at completion time
+  difficulty        String
+  attribute         String
+  periodKey         String   // "ONCE", "DAY:YYYY-MM-DD", "WEEK:YYYY-MM-DD"
+  occurrenceSlot    Int      @default(1)
+  xpAwarded         Int
+  goldAwarded       Int
+  streakSnapshot    Int
+  multiplierBps     Int
+  localActivityDate String   // "YYYY-MM-DD"
+  timezone          String
+  gameRulesVersion  String   @default("1.0.0")
+  completedAt       DateTime @default(now())
+
+  @@unique([userId, questId, periodKey, occurrenceSlot])
+  @@index([userId, completedAt])
+  @@index([userId, localActivityDate])
+}
+
+model ActivityDay {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  localDate       String   // "YYYY-MM-DD"
+  completionCount Int      @default(0)
+  xpEarned        Int      @default(0)
+  goldEarned      Int      @default(0)
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, localDate])
+  @@index([userId, localDate])
+}
+
+model ShopItem {
+  id               String          @id @default(cuid())
+  slug             String          @unique
+  name             String
+  description      String
+  category         String          // THEME, AVATAR, TITLE, FRAME, BADGE
+  price            Int
+  levelRequirement Int             @default(1)
+  effectKey        String
+  active           Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+
+  inventoryItems   InventoryItem[]
+
+  @@index([category, active])
+}
+
+model InventoryItem {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId     String
+  shopItem   ShopItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  acquiredAt DateTime @default(now())
+
+  @@unique([userId, itemId])
+  @@index([userId])
+}
+
+model GoldLedger {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount       Int      // Positive = credit, Negative = debit
+  balanceAfter Int
+  sourceType   String   // QUEST_COMPLETION, SHOP_PURCHASE, BOSS_REWARD
+  sourceId     String
+  description  String
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, sourceType, sourceId])
+  @@index([userId, createdAt])
+}
+
+model MutationReceipt {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idempotencyKey  String
+  operation       String
+  requestHash     String
+  responsePayload String   // Authoritative result serialized to JSON
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, idempotencyKey])
+  @@index([userId, idempotencyKey])
+}
+
+model Achievement {
+  id            String            @id @default(cuid())
+  slug          String            @unique
+  title         String
+  description   String
+  icon          String
+  category      String
+  requiredValue Int
+  createdAt     DateTime          @default(now())
+
+  unlockedBy    UserAchievement[]
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  unlockedAt    DateTime    @default(now())
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+model QuestTemplate {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  attribute   String   // STRENGTH, INTELLECT, DISCIPLINE, VITALITY, CHARISMA
+  difficulty  String   // TRIVIAL, EASY, MEDIUM, HARD, EPIC
+  cadence     String   // ONCE, DAILY, WEEKLY
+  category    String
+  createdAt   DateTime @default(now())
+
+  @@index([attribute])
+}
+
+model UserBossInstance {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekPeriod     String       // "WEEK:YYYY-MM-DD"
+  name           String       @default("Procrastinus, Keeper of Delay")
+  maxHp          Int          @default(1500)
+  currentHp      Int          @default(1500)
+  isDefeated     Boolean      @default(false)
+  rewardClaimed  Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  damageLogs     BossDamage[]
+
+  @@unique([userId, weekPeriod])
+  @@index([userId])
+}
+
+model BossDamage {
+  id                String           @id @default(cuid())
+  bossInstanceId    String
+  bossInstance      UserBossInstance @relation(fields: [bossInstanceId], references: [id], onDelete: Cascade)
+  questCompletionId String           @unique
+  damage            Int
+  dealtAt           DateTime         @default(now())
+
+  @@index([bossInstanceId])
+}
