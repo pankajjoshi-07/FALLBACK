@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Sparkles,
@@ -22,6 +22,22 @@ import { sound } from "@/lib/audio";
 import { cn } from "@/lib/utils";
 
 export default function LandingPage() {
+  // Ensure landing page always resets to the top when refreshed
+  useEffect(() => {
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+
+    const handleBeforeUnload = () => {
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
   // Interactive preview simulator state (strictly client-side preview demo)
   const [simXp, setSimXp] = useState(0);
   const [simGold, setSimGold] = useState(0);
