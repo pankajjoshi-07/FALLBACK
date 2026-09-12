@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=JetBrains+Mono:wght@500;700&family=Sora:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Default: Midnight Arcane Codex */
+  --color-page: #0A0910;
+  --color-secondary: #110F1A;
+  --color-panel: #17141F;
+  --color-panel-elevated: #1E1A2B;
+  --color-border: #2A2438;
+  --color-border-bright: #3D3552;
+  --color-gold: #E8B44A;
+  --color-gold-glow: rgba(232, 180, 74, 0.35);
+  --color-gold-dark: #9A7222;
+  --color-xp: #8B5CF6;
+  --color-xp-light: #C4B5FD;
+  --color-xp-glow: rgba(139, 92, 246, 0.4);
+  --color-danger: #E0455D;
+  --color-info: #38BDF8;
+  --color-success: #34D399;
+  --color-text-primary: #EDE9F5;
+  --color-text-muted: #9B93B0;
+}
+
+[data-theme="theme-crimson"] {
+  /* Crimson Covenant Theme */
+  --color-page: #0F080A;
+  --color-secondary: #1A0D12;
+  --color-panel: #241119;
+  --color-panel-elevated: #321622;
+  --color-border: #4D1F2E;
+  --color-border-bright: #6E2A41;
+  --color-gold: #F59E0B;
+  --color-gold-glow: rgba(245, 158, 11, 0.35);
+  --color-gold-dark: #B45309;
+  --color-xp: #EF4444;
+  --color-xp-light: #FCA5A5;
+  --color-xp-glow: rgba(239, 68, 68, 0.45);
+  --color-danger: #F43F5E;
+  --color-info: #38BDF8;
+  --color-success: #10B981;
+  --color-text-primary: #FDE8EC;
+  --color-text-muted: #B8969E;
+}
+
+[data-theme="theme-emerald"] {
+  /* Emerald Grove Theme */
+  --color-page: #06100A;
+  --color-secondary: #0B1A11;
+  --color-panel: #112419;
+  --color-panel-elevated: #173223;
+  --color-border: #1E462E;
+  --color-border-bright: #28603F;
+  --color-gold: #FBBF24;
+  --color-gold-glow: rgba(251, 191, 36, 0.35);
+  --color-gold-dark: #D97706;
+  --color-xp: #10B981;
+  --color-xp-light: #6EE7B7;
+  --color-xp-glow: rgba(16, 185, 129, 0.45);
+  --color-danger: #E0455D;
+  --color-info: #38BDF8;
+  --color-success: #34D399;
+  --color-text-primary: #E8F5EE;
+  --color-text-muted: #95B2A0;
+}
+
+body {
+  background-color: var(--color-page);
+  color: var(--color-text-primary);
+  font-family: 'Sora', 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, .font-heading {
+  font-family: 'Cinzel', serif;
+}
+
+.tabular-nums {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-bright);
+}
+
+/* Accessibility Focus Ring */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
