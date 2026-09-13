@@ -5,7 +5,7 @@
 
 export type CosmeticCategory = "THEME" | "AVATAR" | "TITLE" | "FRAME" | "BADGE";
 
-export const ALLOWED_THEME_KEYS = ["theme-midnight", "theme-crimson", "theme-emerald"] as const;
+export const ALLOWED_THEME_KEYS = ["theme-midnight", "theme-crimson", "theme-emerald", "theme-nebula", "theme-matrix", "theme-inferno", "theme-vortex", "theme-lightning", "theme-blizzard", "theme-cyberpunk"] as const;
 export type AllowedThemeKey = (typeof ALLOWED_THEME_KEYS)[number];
 
 export const ALLOWED_AVATAR_KEYS = [

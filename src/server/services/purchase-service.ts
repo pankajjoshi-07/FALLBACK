@@ -1,6 +1,7 @@
 import { prisma } from "../db/prisma";
 import { validatePurchase, validateEquipment } from "../game/economy";
 import { evaluateNewAchievements } from "../game/achievements";
+import { calculateLevelFromTotalXp } from "../game/progression";
 import crypto from "crypto";
 
 export interface PurchaseItemResult {
@@ -113,7 +114,7 @@ export async function purchaseItemTransaction(params: {
       );
 
       // Re-verify against real derived level
-      const currentLevel = (await import("../game/progression")).calculateLevelFromTotalXp(user.character.lifetimeXp).level;
+      const currentLevel = calculateLevelFromTotalXp(user.character.lifetimeXp).level;
       if (currentLevel < item.levelRequirement) {
         throw {
           code: "LEVEL_TOO_LOW",
@@ -258,7 +259,7 @@ export async function purchaseItemTransaction(params: {
       });
 
       return responsePayload;
-    });
+    }, { maxWait: 10000, timeout: 30000 });
 
     return result;
   } catch (err: unknown) {

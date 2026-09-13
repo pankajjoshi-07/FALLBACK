@@ -56,6 +56,16 @@ const config: Config = {
         "glow-crimson": "0 0 15px -3px rgba(224, 69, 93, 0.4)",
         "glow-emerald": "0 0 15px -3px rgba(52, 211, 153, 0.4)",
       },
+      animation: {
+        shine: "shine 2.5s infinite",
+      },
+      keyframes: {
+        shine: {
+          "0%": { left: "-100%" },
+          "20%": { left: "100%" },
+          "100%": { left: "100%" },
+        },
+      },
     },
   },
   plugins: [],

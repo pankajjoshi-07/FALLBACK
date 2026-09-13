@@ -15,6 +15,7 @@ import {
   Loader2,
   Search,
   CheckCircle2,
+  Award,
 } from "lucide-react";
 import { CharacterHUD } from "@/components/game/CharacterHUD";
 import { QuestCard } from "@/components/game/QuestCard";
@@ -25,9 +26,11 @@ import { Marketplace } from "@/components/game/Marketplace";
 import { Chronicle } from "@/components/game/Chronicle";
 import { SettingsPanel } from "@/components/game/SettingsPanel";
 import { BossCard } from "@/components/game/BossCard";
+import { BadgesPanel } from "@/components/game/BadgesPanel";
+import { ThemeBackground } from "@/components/game/ThemeBackground";
 import { cn } from "@/lib/utils";
 
-type ActiveTab = "quests" | "character" | "market" | "chronicle" | "settings";
+type ActiveTab = "quests" | "character" | "market" | "chronicle" | "settings" | "badges";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -115,6 +118,17 @@ export default function DashboardPage() {
       return json.data;
     },
     enabled: Boolean(userData),
+  });
+
+  // 6. Fetch all badges
+  const { data: allBadges } = useQuery({
+    queryKey: ["badges"],
+    queryFn: async () => {
+      const res = await fetch("/api/achievements");
+      const json = await res.json();
+      return json.data;
+    },
+    enabled: activeTab === "badges" || Boolean(userData),
   });
 
   // Mutations
@@ -205,7 +219,29 @@ export default function DashboardPage() {
       if (!json.ok) throw new Error(json.error?.message || "Purchase failed.");
       return json;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      // Optimistically update the UI with the exact new gold amount
+      if (data?.data?.character?.gold !== undefined) {
+        queryClient.setQueryData(["me"], (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            character: {
+              ...old.character,
+              gold: data.data.character.gold,
+            },
+          };
+        });
+      }
+      
+      // Optimistically update shop item to show "Equip Item" instantly
+      queryClient.setQueryData(["shop"], (old: any) => {
+        if (!Array.isArray(old)) return old;
+        return old.map((item: any) => 
+          item.id === variables ? { ...item, isOwned: true } : item
+        );
+      });
+
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.invalidateQueries({ queryKey: ["shop"] });
     },
@@ -225,7 +261,34 @@ export default function DashboardPage() {
       if (!json.ok) throw new Error(json.error?.message);
       return json;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      if (data?.data?.slot && data?.data?.equippedValue) {
+        queryClient.setQueryData(["me"], (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            character: {
+              ...old.character,
+              [data.data.slot]: data.data.equippedValue,
+            },
+          };
+        });
+        
+        // Optimistically update shop cache for equipped item
+        queryClient.setQueryData(["shop"], (old: any) => {
+          if (!Array.isArray(old)) return old;
+          // Find the category of the item we just equipped
+          const equippedItem = old.find(i => i.id === variables.itemId);
+          if (!equippedItem) return old;
+          
+          return old.map((item: any) => {
+            if (item.category === equippedItem.category) {
+              return { ...item, isEquipped: item.id === variables.itemId };
+            }
+            return item;
+          });
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.invalidateQueries({ queryKey: ["shop"] });
     },
@@ -323,6 +386,13 @@ export default function DashboardPage() {
       icon: <Scroll className="w-4 h-4" aria-hidden="true" />,
     },
     {
+      id: "badges",
+      label: "Badges",
+      sublabel: "Achievements",
+      ariaLabel: "Badges and Achievements",
+      icon: <Award className="w-4 h-4" aria-hidden="true" />,
+    },
+    {
       id: "settings",
       label: "Settings",
       sublabel: "Account",
@@ -332,7 +402,9 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-page text-foreground pb-24 md:pb-12">
+    <div className="min-h-screen bg-transparent text-foreground pb-24 md:pb-12 relative z-0">
+      <ThemeBackground themeKey={userData.character.equippedTheme} />
+
       {/* Sticky Character HUD */}
       <CharacterHUD character={userData.character} />
 
@@ -522,7 +594,15 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* Tab 5: Account Settings */}
+        {/* Tab 5: Badges & Achievements */}
+        {activeTab === "badges" && (
+          <BadgesPanel
+            allBadges={allBadges || []}
+            unlockedBadges={userData.achievements || []}
+          />
+        )}
+
+        {/* Tab 6: Account Settings */}
         {activeTab === "settings" && (
           <SettingsPanel
             user={userData}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Shield, Sword, Heart, Trophy, Skull, PartyPopper, Coins } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useRouter } from "next/navigation";
