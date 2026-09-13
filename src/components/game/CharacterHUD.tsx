@@ -19,6 +19,7 @@ interface CharacterHUDProps {
     effectiveStreak: number;
     equippedTheme: string;
     equippedAvatar: string;
+    customAvatarUrl?: string | null;
     equippedTitle: string | null;
     equippedFrame: string | null;
   };
@@ -43,6 +44,7 @@ export function CharacterHUD({ character }: CharacterHUDProps) {
           <Avatar
             avatarKey={character.equippedAvatar}
             frameKey={character.equippedFrame}
+            customAvatarUrl={character.customAvatarUrl}
             size="md"
           />
           <div>

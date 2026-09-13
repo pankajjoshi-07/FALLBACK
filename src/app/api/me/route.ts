@@ -62,6 +62,7 @@ export async function GET() {
         progressPercent: levelInfo.progressPercent,
         isMaxLevel: levelInfo.isMaxLevel,
         effectiveStreak,
+        customAvatarUrl: user.character.customAvatarUrl,
       },
       attributes,
       totalCompletions,
@@ -84,6 +85,7 @@ const patchMeSchema = z.object({
   activityTimezone: z.string().optional(),
   soundEnabled: z.boolean().optional(),
   motionReduced: z.boolean().optional(),
+  customAvatarUrl: z.string().nullable().optional(),
 });
 
 export async function PATCH(req: NextRequest) {
@@ -106,7 +108,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const { displayName, heroName, activityTimezone, soundEnabled, motionReduced } = parsed.data;
+    const { displayName, heroName, activityTimezone, soundEnabled, motionReduced, customAvatarUrl } = parsed.data;
 
     const userUpdate: Record<string, unknown> = {};
     if (displayName) userUpdate.displayName = displayName;
@@ -138,10 +140,14 @@ export async function PATCH(req: NextRequest) {
       });
     }
 
-    if (heroName) {
+    const characterUpdate: Record<string, unknown> = {};
+    if (heroName) characterUpdate.heroName = heroName;
+    if (customAvatarUrl !== undefined) characterUpdate.customAvatarUrl = customAvatarUrl;
+
+    if (Object.keys(characterUpdate).length > 0) {
       await prisma.character.update({
         where: { userId: user.id },
-        data: { heroName },
+        data: characterUpdate,
       });
     }
 

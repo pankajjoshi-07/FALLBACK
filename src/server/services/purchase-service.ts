@@ -328,12 +328,18 @@ export async function equipItem(params: {
     };
   }
 
+  const updateData: Record<string, any> = {
+    [validation.slot]: effectKey,
+    stateVersion: { increment: 1 },
+  };
+
+  if (validation.slot === "equippedAvatar") {
+    updateData.customAvatarUrl = null;
+  }
+
   const updatedCharacter = await prisma.character.update({
     where: { userId },
-    data: {
-      [validation.slot]: effectKey,
-      stateVersion: { increment: 1 },
-    },
+    data: updateData,
   });
 
   return {

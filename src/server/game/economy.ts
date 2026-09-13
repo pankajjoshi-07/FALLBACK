@@ -5,7 +5,7 @@
 
 export type CosmeticCategory = "THEME" | "AVATAR" | "TITLE" | "FRAME" | "BADGE";
 
-export const ALLOWED_THEME_KEYS = ["theme-midnight", "theme-crimson", "theme-emerald", "theme-nebula", "theme-matrix", "theme-inferno", "theme-vortex", "theme-lightning", "theme-blizzard", "theme-cyberpunk"] as const;
+export const ALLOWED_THEME_KEYS = ["theme-palace-video", "theme-lofi-coding", "theme-synthwave-city", "theme-magical-forest", "theme-anime-sunset", "theme-cyberpunk-delorean", "theme-none"] as const;
 export type AllowedThemeKey = (typeof ALLOWED_THEME_KEYS)[number];
 
 export const ALLOWED_AVATAR_KEYS = [
@@ -14,6 +14,7 @@ export const ALLOWED_AVATAR_KEYS = [
   "avatar-monk",
   "avatar-bard",
   "avatar-artisan",
+  "avatar-anime-girl",
 ] as const;
 export type AllowedAvatarKey = (typeof ALLOWED_AVATAR_KEYS)[number];
 

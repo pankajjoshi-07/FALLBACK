@@ -66,6 +66,7 @@ model Character {
   lastActivityDate String?  // "YYYY-MM-DD"
   equippedTheme    String   @default("theme-midnight")
   equippedAvatar   String   @default("avatar-warrior")
+  customAvatarUrl  String?
   equippedTitle    String?  @default("Novice Adventurer")
   equippedFrame    String?  @default("frame-apprentice")
   stateVersion     Int      @default(1)

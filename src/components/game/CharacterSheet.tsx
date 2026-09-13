@@ -23,6 +23,7 @@ interface CharacterSheetProps {
       longestStreak: number;
       equippedTheme: string;
       equippedAvatar: string;
+      customAvatarUrl?: string | null;
       equippedTitle: string | null;
       equippedFrame: string | null;
     };
@@ -49,8 +50,27 @@ interface CharacterSheetProps {
   };
 }
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ProfilePictureUploader } from "./ProfilePictureUploader";
+
 export function CharacterSheet({ user }: CharacterSheetProps) {
   const { character, attributes, achievements, totalCompletions } = user;
+  const queryClient = useQueryClient();
+
+  const updateAvatarMutation = useMutation({
+    mutationFn: async (base64Image: string) => {
+      const res = await fetch("/api/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customAvatarUrl: base64Image }),
+      });
+      if (!res.ok) throw new Error("Failed to upload image");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+    },
+  });
 
   const attrMeta: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string; desc: string }> = {
     STRENGTH: {
@@ -91,17 +111,23 @@ export function CharacterSheet({ user }: CharacterSheetProps) {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
+    <div className="space-y-6 animate-fade-in max-w-5xl mx-auto relative z-10">
       {/* Hero Header Banner with Standardized Metrics */}
       <div className="rounded-2xl border border-border bg-panel p-6 shadow-panel flex flex-col md:flex-row items-center md:items-start gap-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
 
-        <Avatar
-          avatarKey={character.equippedAvatar}
-          frameKey={character.equippedFrame}
-          size="xl"
-          className="shadow-2xl"
-        />
+        <div className="relative group">
+          <Avatar
+            avatarKey={character.equippedAvatar}
+            frameKey={character.equippedFrame}
+            customAvatarUrl={character.customAvatarUrl}
+            size="xl"
+            className="shadow-2xl"
+          />
+          <ProfilePictureUploader 
+            onUpload={async (base64) => { await updateAvatarMutation.mutateAsync(base64); }} 
+          />
+        </div>
 
         <div className="flex-1 text-center md:text-left space-y-2">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">

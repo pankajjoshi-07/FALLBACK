@@ -21,6 +21,7 @@ import { CharacterHUD } from "@/components/game/CharacterHUD";
 import { QuestCard } from "@/components/game/QuestCard";
 import { QuestModal } from "@/components/game/QuestModal";
 import { LevelUpModal } from "@/components/game/LevelUpModal";
+import { BadgeUnlockModal } from "@/components/game/BadgeUnlockModal";
 import { CharacterSheet } from "@/components/game/CharacterSheet";
 import { Marketplace } from "@/components/game/Marketplace";
 import { Chronicle } from "@/components/game/Chronicle";
@@ -39,6 +40,7 @@ export default function DashboardPage() {
   const [questModalOpen, setQuestModalOpen] = useState(false);
   const [editingQuest, setEditingQuest] = useState<any>(null);
   const [levelUpData, setLevelUpData] = useState<{ fromLevel: number; toLevel: number } | null>(null);
+  const [unlockedBadgesData, setUnlockedBadgesData] = useState<any[]>([]);
 
   // Quest filter states
   const [cadenceFilter, setCadenceFilter] = useState("ALL");
@@ -159,6 +161,11 @@ export default function DashboardPage() {
           fromLevel: levelUpEvent.payload.fromLevel,
           toLevel: levelUpEvent.payload.toLevel,
         });
+      }
+
+      const achievementEvents = result.events?.filter((e: any) => e.type === "ACHIEVEMENT_UNLOCKED");
+      if (achievementEvents && achievementEvents.length > 0) {
+        setUnlockedBadgesData(achievementEvents.map((e: any) => e.payload));
       }
     },
     onError: (err: any) => {
@@ -404,6 +411,29 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-transparent text-foreground pb-24 md:pb-12 relative z-0">
       <ThemeBackground themeKey={userData.character.equippedTheme} />
+
+      {/* Animated Avatar Companion (Left Side Margin Overlay) */}
+      {activeTab === "character" && userData?.character?.equippedAvatar === "avatar-anime-girl" && !userData?.character?.customAvatarUrl && (
+        <div 
+          className="fixed left-0 top-0 bottom-0 pointer-events-none z-[5] overflow-hidden" 
+          style={{ 
+            width: "calc(50vw - 512px)", 
+            minWidth: "0",
+            display: "block"
+          }}
+        >
+          <iframe
+            src="https://www.youtube.com/embed/hV-7WgwYcx8?autoplay=1&mute=1&controls=0&loop=1&playlist=hV-7WgwYcx8&playsinline=1&rel=0&showinfo=0&disablekb=1&fs=0&modestbranding=1&iv_load_policy=3"
+            className="w-full h-full object-cover scale-[1.3] pointer-events-none opacity-80"
+            allow="autoplay; encrypted-media"
+            frameBorder="0"
+            tabIndex={-1}
+            style={{ position: 'absolute', top: 0, left: '-20%', width: '140%', height: '140%' }}
+          />
+          {/* Fade to black at the right edge so it blends into the main panel area */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#09090b] pointer-events-none" />
+        </div>
+      )}
 
       {/* Sticky Character HUD */}
       <CharacterHUD character={userData.character} />
@@ -657,6 +687,12 @@ export default function DashboardPage() {
           </button>
         ))}
       </nav>
+
+      {/* Badge Unlock Celebratory Modal */}
+      <BadgeUnlockModal
+        badges={unlockedBadgesData}
+        onClose={() => setUnlockedBadgesData([])}
+      />
     </div>
   );
 }
