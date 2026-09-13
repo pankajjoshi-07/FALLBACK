@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Search, Sparkles, BookOpen, PlusCircle, ArrowLeft } from "lucide-react";
+import { X, Search, Sparkles, BookOpen, PlusCircle, ArrowLeft, Gamepad2 } from "lucide-react";
 import { INITIAL_TEMPLATES } from "@/server/game/seed-data";
 import { DIFFICULTY_XP } from "@/server/game/progression";
+import { TopicGame } from "./TopicGame";
 
 const TEMPLATE_TOPICS: Record<string, string[]> = {
   "int-software-engineering": ["Data Structures", "Algorithms", "System Design", "Clean Code", "Design Patterns"],
@@ -585,7 +586,7 @@ interface QuestModalProps {
 }
 
 export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestModalProps) {
-  const [tab, setTab] = useState<"custom" | "templates" | "topics" | "subtopics" | "details">(editingQuest ? "custom" : "custom");
+  const [tab, setTab] = useState<"custom" | "templates" | "topics" | "subtopics" | "details" | "game">(editingQuest ? "custom" : "custom");
   const [title, setTitle] = useState(editingQuest?.title || "");
   const [description, setDescription] = useState(editingQuest?.description || "");
   const [difficulty, setDifficulty] = useState(editingQuest?.difficulty || "MEDIUM");
@@ -598,24 +599,25 @@ export function QuestModal({ isOpen, onClose, onSubmit, editingQuest }: QuestMod
   const [selectedTemplateSlug, setSelectedTemplateSlug] = useState<string | null>(editingQuest ? null : null);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [selectedSubtopic, setSelectedSubtopic] = useState<string | null>(null);
+  const [selectedGameTopic, setSelectedGameTopic] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const generateGamifiedQuest = (baseTitle: string, topic: string, originalDescription: string) => {
     const rpgPrefixes = [
-      "The Scroll of", 
-      "Mastery over", 
-      "The Trials of", 
-      "Conquering", 
-      "The Secrets of", 
+      "The Scroll of",
+      "Mastery over",
+      "The Trials of",
+      "Conquering",
+      "The Secrets of",
       "Unlocking",
       "The Domain of",
       "Expedition into"
     ];
     const randomPrefix = rpgPrefixes[Math.floor(Math.random() * rpgPrefixes.length)];
-    
+
     const newTitle = `${randomPrefix} ${topic}`;
-    
+
     const newDescription = `📜 **Mission Briefing:**
 The elders of **${baseTitle}** have assigned you a critical quest. To level up your abilities, you must dive deep into the arcane knowledge of **${topic}**.
 
@@ -713,23 +715,21 @@ ${originalDescription}
         </div>
 
         {/* Tab Selector */}
-        {!editingQuest && tab !== "topics" && tab !== "subtopics" && tab !== "details" && (
+        {!editingQuest && tab !== "topics" && tab !== "subtopics" && tab !== "details" && tab !== "game" && (
           <div className="flex border-b border-border mb-4 pt-2">
             <button
               onClick={() => setTab("custom")}
               aria-selected={tab === "custom"}
-              className={`pb-2 px-4 text-xs font-semibold transition-colors border-b-2 ${
-                tab === "custom" ? "border-gold text-gold" : "border-transparent text-foreground-muted hover:text-foreground"
-              }`}
+              className={`pb-2 px-4 text-xs font-semibold transition-colors border-b-2 ${tab === "custom" ? "border-gold text-gold" : "border-transparent text-foreground-muted hover:text-foreground"
+                }`}
             >
               Custom Task
             </button>
             <button
               onClick={() => setTab("templates")}
               aria-selected={tab === "templates"}
-              className={`pb-2 px-4 text-xs font-semibold transition-colors border-b-2 flex items-center gap-1.5 ${
-                tab === "templates" ? "border-gold text-gold" : "border-transparent text-foreground-muted hover:text-foreground"
-              }`}
+              className={`pb-2 px-4 text-xs font-semibold transition-colors border-b-2 flex items-center gap-1.5 ${tab === "templates" ? "border-gold text-gold" : "border-transparent text-foreground-muted hover:text-foreground"
+                }`}
             >
               <BookOpen className="w-3.5 h-3.5" aria-hidden="true" />
               Popular Task
@@ -898,6 +898,16 @@ ${originalDescription}
               </div>
             </div>
           </form>
+        ) : tab === "game" && selectedTemplateSlug && selectedGameTopic ? (
+          /* Tab: Interactive Learning Game */
+          <TopicGame 
+            topic={selectedGameTopic} 
+            onWin={() => {
+              const tmpl = INITIAL_TEMPLATES.find(t => t.slug === selectedTemplateSlug);
+              if (tmpl) handleAdoptTemplate(tmpl, selectedGameTopic);
+            }} 
+            onCancel={() => setTab("details")} 
+          />
         ) : tab === "details" && selectedTemplateSlug && selectedTopic && selectedSubtopic ? (
           /* Tab: Deep Topics Selection */
           <div className="flex flex-col flex-1 overflow-hidden space-y-4 animate-fade-in">
@@ -914,31 +924,37 @@ ${originalDescription}
                 <p className="text-xs text-foreground-muted">Line-wise detailed concepts</p>
               </div>
             </div>
-            
+
             <div className="overflow-y-auto pr-1 flex-1">
               <div className="flex flex-col gap-2">
                 {DEEP_TOPICS[selectedSubtopic]?.map(detail => (
                   <button
                     key={detail}
                     onClick={() => {
-                      const tmpl = INITIAL_TEMPLATES.find(t => t.slug === selectedTemplateSlug);
-                      if (tmpl) handleAdoptTemplate(tmpl, `${selectedSubtopic} - ${detail}`);
+                      setSelectedGameTopic(detail);
+                      setTab("game");
                     }}
                     className="p-3 text-left rounded-lg border border-border bg-secondary/50 hover:bg-secondary hover:border-gold/60 hover:shadow-[0_0_15px_rgba(255,215,0,0.1)] transition-all text-sm font-medium text-foreground flex items-center justify-between group"
                   >
                     {detail}
-                    <PlusCircle className="w-4 h-4 text-gold opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
+                    <div className="flex items-center gap-2 text-gold opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs font-bold uppercase tracking-wider">Let's Start</span>
+                      <Gamepad2 className="w-4 h-4" aria-hidden="true" />
+                    </div>
                   </button>
                 ))}
                 <button
-                   onClick={() => {
-                      const tmpl = INITIAL_TEMPLATES.find(t => t.slug === selectedTemplateSlug);
-                      if (tmpl) handleAdoptTemplate(tmpl, `${selectedTopic} - ${selectedSubtopic}`);
-                   }}
-                   className="p-3 mt-1 text-left rounded-lg border border-border bg-secondary/30 hover:bg-secondary hover:border-border transition-all text-sm font-medium text-foreground-muted italic flex items-center justify-between group"
+                  onClick={() => {
+                    setSelectedGameTopic(selectedSubtopic);
+                    setTab("game");
+                  }}
+                  className="p-3 mt-1 text-left rounded-lg border border-border bg-secondary/30 hover:bg-secondary hover:border-border transition-all text-sm font-medium text-foreground-muted italic flex items-center justify-between group"
                 >
                   General {selectedSubtopic}
-                  <PlusCircle className="w-4 h-4 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
+                  <div className="flex items-center gap-2 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-xs font-bold uppercase tracking-wider">Let's Start</span>
+                    <Gamepad2 className="w-4 h-4" aria-hidden="true" />
+                  </div>
                 </button>
               </div>
             </div>
@@ -959,7 +975,7 @@ ${originalDescription}
                 <p className="text-xs text-foreground-muted">Select a specific subtopic to focus on</p>
               </div>
             </div>
-            
+
             <div className="overflow-y-auto pr-1 flex-1">
               <div className="flex flex-col gap-2">
                 {SUBTOPICS[selectedTopic]?.map(subtopic => (
@@ -981,11 +997,11 @@ ${originalDescription}
                   </button>
                 ))}
                 <button
-                   onClick={() => {
-                      const tmpl = INITIAL_TEMPLATES.find(t => t.slug === selectedTemplateSlug);
-                      if (tmpl) handleAdoptTemplate(tmpl, selectedTopic);
-                   }}
-                   className="p-3 mt-1 text-left rounded-lg border border-border bg-secondary/30 hover:bg-secondary hover:border-border transition-all text-sm font-medium text-foreground-muted italic flex items-center justify-between group"
+                  onClick={() => {
+                    const tmpl = INITIAL_TEMPLATES.find(t => t.slug === selectedTemplateSlug);
+                    if (tmpl) handleAdoptTemplate(tmpl, selectedTopic);
+                  }}
+                  className="p-3 mt-1 text-left rounded-lg border border-border bg-secondary/30 hover:bg-secondary hover:border-border transition-all text-sm font-medium text-foreground-muted italic flex items-center justify-between group"
                 >
                   General {selectedTopic}
                   <PlusCircle className="w-4 h-4 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
@@ -1009,7 +1025,7 @@ ${originalDescription}
                 <p className="text-xs text-foreground-muted">Choose a specific area to focus on for this task</p>
               </div>
             </div>
-            
+
             <div className="overflow-y-auto pr-1 flex-1">
               <div className="flex flex-col gap-2">
                 {TEMPLATE_TOPICS[selectedTemplateSlug]?.map(topic => (
@@ -1031,11 +1047,11 @@ ${originalDescription}
                   </button>
                 ))}
                 <button
-                   onClick={() => {
-                      const tmpl = INITIAL_TEMPLATES.find(t => t.slug === selectedTemplateSlug);
-                      if (tmpl) handleAdoptTemplate(tmpl);
-                   }}
-                   className="p-3 mt-1 text-left rounded-lg border border-border bg-secondary/30 hover:bg-secondary hover:border-border transition-all text-sm font-medium text-foreground-muted italic flex items-center justify-between group"
+                  onClick={() => {
+                    const tmpl = INITIAL_TEMPLATES.find(t => t.slug === selectedTemplateSlug);
+                    if (tmpl) handleAdoptTemplate(tmpl);
+                  }}
+                  className="p-3 mt-1 text-left rounded-lg border border-border bg-secondary/30 hover:bg-secondary hover:border-border transition-all text-sm font-medium text-foreground-muted italic flex items-center justify-between group"
                 >
                   General / Broad Topic
                   <PlusCircle className="w-4 h-4 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
